@@ -12,6 +12,7 @@ Web app instalable en el celular (PWA) para registrar gastos en MXN.
 - **Resumen mensual:** tu gasto personal, lo que salió de cada tarjeta y el gasto por categoría.
 - **Privacidad:** los datos se guardan **solo en el teléfono** (localStorage). Nada se sube al repo ni a ningún servidor.
 - **Temas:** 8 temas a elegir en *Ajustes* (Menta, Sakura, Lavanda, Arena, Océano, Medianoche, Grafito o Automático).
+- **Foto:** en *Ajustes → Foto* eliges una imagen de tu carrete para el fondo y/o la tarjeta de inicio. Se guarda solo en el teléfono.
 - **Respaldo:** en *Ajustes → Exportar respaldo (.json)*. Se importa en el mismo lugar. También se puede exportar a CSV para Excel.
 
 ### Publicarla (GitHub Pages)

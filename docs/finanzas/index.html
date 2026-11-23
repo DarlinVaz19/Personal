@@ -24,6 +24,7 @@
 </script>
 </head>
 <body>
+<div class="photo-bg" aria-hidden="true"></div>
 <header class="topbar">
   <h1 id="title">Nuevo movimiento</h1>
 </header>
@@ -109,6 +110,13 @@
   <section id="view-ajustes" class="view" hidden>
     <h2>Tema</h2>
     <div class="themes" id="themes"></div>
+
+    <h2>Foto</h2>
+    <div class="photo-admin">
+      <div class="photo-preview" id="photoPreview"></div>
+      <div class="stack" id="photoControls"></div>
+      <input type="file" id="photoFile" accept="image/*" hidden>
+    </div>
 
     <h2>Tarjetas y cuentas</h2>
     <div id="cardAdmin"></div>

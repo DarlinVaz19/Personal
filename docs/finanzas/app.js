@@ -6,6 +6,7 @@
    ============================================================ */
 
 const STORAGE_KEY = 'finanzas.v1';
+const PHOTO_KEY = 'finanzas.foto'; // la foto va aparte para que el respaldo .json no pese
 
 const DEFAULT_CARDS = [
   { id: 'banamex-debito', name: 'Débito Banamex', kind: 'debito', color: '#c8102e' },
@@ -128,7 +129,7 @@ function toast(msg) {
 /* ---------------- Datos ---------------- */
 
 function emptyDb() {
-  return { version: 1, cards: DEFAULT_CARDS.map((c) => ({ ...c })), movements: [], lastCardId: null, lastBackup: null, theme: 'auto' };
+  return { version: 1, cards: DEFAULT_CARDS.map((c) => ({ ...c })), movements: [], lastCardId: null, lastBackup: null, theme: 'auto', photo: { where: 'ambos', visibility: 35 } };
 }
 
 function load() {
@@ -217,6 +218,69 @@ function applyTheme() {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
 
+/* ---------------- Foto ---------------- */
+
+function getPhoto() { try { return localStorage.getItem(PHOTO_KEY); } catch (e) { return null; } }
+function photoSettings() { return { where: 'ambos', visibility: 35, ...(db.photo || {}) }; }
+
+function applyPhoto() {
+  const img = getPhoto();
+  const ps = photoSettings();
+  const root = document.documentElement;
+  root.style.setProperty('--photo', img ? `url("${img}")` : 'none');
+  root.style.setProperty('--photo-veil', String(1 - ps.visibility / 100));
+  document.body.classList.toggle('photo-on', !!img && (ps.where === 'fondo' || ps.where === 'ambos'));
+  $('#hero')?.classList.toggle('photo', !!img && (ps.where === 'tarjeta' || ps.where === 'ambos'));
+}
+
+// Reduce la foto (máx. 1400 px) para que quepa en el almacenamiento del teléfono.
+function loadPhoto(file) {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    const max = 1400;
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+    let data = canvas.toDataURL('image/jpeg', 0.82);
+    try {
+      localStorage.setItem(PHOTO_KEY, data);
+    } catch (e) {
+      try {
+        data = canvas.toDataURL('image/jpeg', 0.6);
+        localStorage.setItem(PHOTO_KEY, data);
+      } catch (e2) {
+        alert('La foto es demasiado grande para guardarla. Prueba con otra.');
+        return;
+      }
+    }
+    applyPhoto();
+    renderSettings();
+    toast('Foto aplicada');
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); alert('No se pudo abrir esa imagen.'); };
+  img.src = url;
+}
+
+function renderPhotoAdmin() {
+  const img = getPhoto();
+  const ps = photoSettings();
+  $('#photoPreview').textContent = img ? '' : 'Sin foto';
+  const where = [['fondo', 'Fondo'], ['tarjeta', 'Tarjeta de inicio'], ['ambos', 'Ambos']];
+  $('#photoControls').innerHTML = `
+    <button type="button" class="btn" data-photo="pick">${img ? 'Cambiar foto' : 'Elegir foto'}</button>
+    ${img ? `
+      <div class="label" style="margin-top:10px">¿Dónde se muestra?</div>
+      <div class="chips">${where.map(([id, name]) =>
+        `<button type="button" class="chip" data-photo-where="${id}" aria-pressed="${ps.where === id}">${name}</button>`).join('')}</div>
+      <label class="label" for="photoVis" style="margin-top:10px">Qué tanto se ve en el fondo</label>
+      <input type="range" id="photoVis" min="10" max="80" step="5" value="${ps.visibility}">
+      <button type="button" class="btn danger" data-photo="remove">Quitar foto</button>` : ''}`;
+}
+
 /* ---------------- Navegación ---------------- */
 
 function setTab(tab) {
@@ -253,6 +317,7 @@ function renderMonthNavs() {
 
 function renderHero() {
   const hero = $('#hero');
+  applyPhoto();
   hero.hidden = !!ui.editingId;
   if (ui.editingId) return;
   const ym = monthOf(todayISO());
@@ -579,6 +644,7 @@ function renderSummary() {
 /* ---------------- Ajustes ---------------- */
 
 function renderSettings() {
+  renderPhotoAdmin();
   $('#themes').innerHTML = THEMES.map((t) => `
     <button type="button" class="theme-opt" data-theme-id="${t.id}" aria-pressed="${(db.theme || 'auto') === t.id}">
       <span class="sw" style="background:${t.swatch}"></span>${esc(t.name)}
@@ -783,6 +849,30 @@ function bind() {
   });
   darkQuery.addEventListener?.('change', applyTheme);
 
+  $('#photoControls').addEventListener('click', (e) => {
+    const pick = e.target.closest('[data-photo="pick"]');
+    if (pick) { $('#photoFile').click(); return; }
+    if (e.target.closest('[data-photo="remove"]')) {
+      if (!confirm('¿Quitar la foto?')) return;
+      localStorage.removeItem(PHOTO_KEY);
+      applyPhoto(); renderSettings();
+      return;
+    }
+    const w = e.target.closest('[data-photo-where]');
+    if (w) { db.photo = { ...photoSettings(), where: w.dataset.photoWhere }; save(); applyPhoto(); renderSettings(); }
+  });
+  $('#photoControls').addEventListener('input', (e) => {
+    if (e.target.id !== 'photoVis') return;
+    db.photo = { ...photoSettings(), visibility: Number(e.target.value) };
+    applyPhoto();
+  });
+  $('#photoControls').addEventListener('change', (e) => { if (e.target.id === 'photoVis') save(); });
+  $('#photoFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) loadPhoto(file);
+    e.target.value = '';
+  });
+
   $('#exportJson').addEventListener('click', exportJson);
   $('#exportCsv').addEventListener('click', exportCsv);
   $('#importJson').addEventListener('click', () => $('#importFile').click());
@@ -796,7 +886,9 @@ function bind() {
     if (prompt('Escribe BORRAR para confirmar') !== 'BORRAR') return;
     db = emptyDb();
     save();
+    localStorage.removeItem(PHOTO_KEY);
     applyTheme();
+    applyPhoto();
     resetForm(false);
     toast('Datos borrados');
     render();
@@ -809,6 +901,7 @@ function init() {
   // Primera vez: guardar tarjetas por defecto.
   if (!localStorage.getItem(STORAGE_KEY)) save();
   applyTheme();
+  applyPhoto();
   bind();
   resetForm(false);
   setTab('nuevo');
