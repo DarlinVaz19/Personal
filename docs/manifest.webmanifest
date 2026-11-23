@@ -1,7 +1,7 @@
 {
-  "name": "Mis Finanzas",
-  "short_name": "Finanzas",
-  "description": "Registro privado de gastos, tarjetas y deudas.",
+  "name": "Mi cielo",
+  "short_name": "Mi cielo",
+  "description": "Mi espacio privado: finanzas, ideas, gatos, hábitos y diario.",
   "lang": "es-MX",
   "start_url": "./",
   "scope": "./",

@@ -1,11 +1,38 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-root="./">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi cielo</title>
 <meta name="robots" content="noindex, nofollow">
-<title>Personal</title>
-<meta http-equiv="refresh" content="0; url=finanzas/">
+<meta name="theme-color" content="#efe6f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi cielo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="hub.css">
+<script src="shared/theme-early.js"></script>
 </head>
-<body><a href="finanzas/">Abrir Mis Finanzas</a></body>
+<body class="no-tabbar">
+<header class="topbar">
+  <div class="titles">
+    <h1 id="title">Hola</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+</header>
+
+<main>
+  <section class="hero bp" id="hero" data-photo-card></section>
+
+  <h2>¿Qué quieres hacer?</h2>
+  <nav class="tiles" id="tiles" aria-label="Secciones"></nav>
+</main>
+
+<script src="shared/icons.js"></script>
+<script src="shared/core.js"></script>
+<script src="hub.js"></script>
+</body>
 </html>

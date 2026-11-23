@@ -1,0 +1,60 @@
+/* ===== Gatos: pasaporte felino ===== */
+.passports { display: grid; gap: 14px; }
+.passport {
+  position: relative; overflow: hidden; border-radius: 20px; cursor: pointer;
+  background:
+    radial-gradient(circle at 100% 0%, var(--accent-soft), transparent 55%),
+    repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--accent) 5%, transparent) 14px 15px),
+    var(--surface-solid);
+  border: 1px solid var(--border); box-shadow: var(--shadow); animation: rise .45s ease-out both;
+}
+.passport:active { transform: scale(.985); }
+.pp-head {
+  display: flex; justify-content: space-between; align-items: center; padding: 9px 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em;
+}
+.pp-head .ic.mini { --ic-line: rgba(0, 0, 0, .25); width: 18px; height: 18px; }
+.pp-body { display: flex; gap: 14px; padding: 14px; align-items: center; }
+.pp-photo {
+  width: 86px; height: 104px; flex: none; border-radius: 14px; overflow: hidden; display: grid; place-items: center;
+  background: var(--surface-2); border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0, 0, 0, .12); padding: 0;
+}
+.pp-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pp-photo .ic { width: 58px; height: 58px; }
+.pp-fields { flex: 1; min-width: 0; }
+.pp-name { font-size: 26px; font-weight: 700; line-height: 1.1; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-style="journal"] .pp-name { font-family: var(--serif); font-weight: 500; font-size: 30px; }
+.pp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.pp-grid small { display: block; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 9.5px; letter-spacing: .1em; color: var(--muted); }
+.pp-grid b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-notes { margin: 0 14px 10px; font-size: 14px; color: var(--muted); }
+.pp-mrz {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: .14em; line-height: 1.5;
+  padding: 8px 14px 10px; color: var(--muted); border-top: 1px dashed var(--border); white-space: nowrap; overflow: hidden;
+}
+.passport.big { cursor: default; margin-bottom: 8px; }
+.passport.big .pp-photo { width: 104px; height: 126px; }
+
+.back { padding: 6px 0 10px; font-size: 15px; }
+.edit-cat { display: block; margin: 0 0 14px auto; }
+.view-body.enter { animation: viewIn .35s ease-out; }
+.item .next { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.item .next small { font-size: 9.5px; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+
+/* Gráfica de peso */
+.chart svg { width: 100%; height: 140px; display: block; }
+.chart-area { fill: var(--accent-soft); opacity: .8; }
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.chart-dot { fill: var(--surface-solid); stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.chart-legend { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* Formularios */
+.photo-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 12px; }
+.big-pick { width: 110px; height: 130px; cursor: pointer; }
+.quick { margin: -4px 0 14px; }
+.quick .chip { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+.check { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; font-weight: 600; }
+.check input { width: 22px; height: 22px; accent-color: var(--accent); }
+#sCards { margin-bottom: 6px; }
+.amount input + .currency { font-size: 22px; }

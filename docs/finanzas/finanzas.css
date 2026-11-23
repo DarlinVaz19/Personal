@@ -1,0 +1,41 @@
+/* ===== Finanzas: movimientos como pase de abordar ===== */
+.passes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.passes .item {
+  position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+  box-shadow: var(--shadow); padding: 12px 12px 12px 14px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.passes .item:first-child { border-top: 1px solid var(--border); }
+.passes .item .amt {
+  position: relative; align-self: stretch; display: flex; flex-direction: column; justify-content: center;
+  border-left: 2px dashed var(--border); padding-left: 10px; min-width: 0;
+}
+.passes .item .amt::before, .passes .item .amt::after {
+  content: ""; position: absolute; left: -9px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+}
+.passes .item .amt::before { top: -21px; }
+.passes .item .amt::after { bottom: -21px; }
+.gate { display: block; font-size: 10px; letter-spacing: .12em; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+.item .s.route {
+  display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--text);
+  text-transform: uppercase; font-size: 11.5px; letter-spacing: .05em; margin: 2px 0 1px;
+}
+.route span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 0 1 auto; }
+.route .ic { flex: none; }
+
+/* ===== Resumen como bitácora de vuelo ===== */
+.logbook {
+  background: var(--surface-solid); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow);
+  padding: 14px 16px 12px; margin-bottom: 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  animation: rise .45s ease-out both;
+}
+.lb-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 700; letter-spacing: .08em;
+  font-size: 12.5px; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 2px;
+}
+.lb-head span:first-child { display: flex; align-items: center; gap: 6px; }
+.lb-head .ic { width: 24px; height: 24px; }
+.lb-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13.5px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.lb-row em { font-style: normal; color: var(--muted); font-size: 11px; }
+.lb-row b { font-variant-numeric: tabular-nums; text-align: right; }
+.lb-sign { text-align: right; font-family: var(--serif, Georgia), Georgia, serif; font-style: italic; color: var(--muted); font-size: 14px; margin-top: 8px; }

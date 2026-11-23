@@ -1,0 +1,57 @@
+/* ===== Ideas: tablero de notas adhesivas ===== */
+.search { margin-bottom: 10px; }
+.filters { margin-bottom: 16px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+
+.board { columns: 2; column-gap: 14px; }
+.board-empty { column-span: all; }
+.note {
+  --hand: "Noteworthy", "Bradley Hand", "Segoe Print", "Chalkboard SE", ui-rounded, cursive;
+  break-inside: avoid; display: inline-block; width: 100%; margin: 10px 0 14px; position: relative;
+  background: var(--note); color: #3a3358; border-radius: 4px 4px 14px 4px; padding: 22px 14px 10px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .06), 0 10px 18px -6px rgba(60, 40, 90, .28);
+  transform: rotate(var(--r)); animation: rise .45s ease-out both; animation-delay: calc(var(--i) * 40ms);
+}
+.note::after {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 22px; height: 22px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, .10) 50%, transparent 50%); border-radius: 0 0 14px 0;
+}
+.tape {
+  position: absolute; top: -9px; left: 50%; width: 64px; height: 20px; transform: translateX(-50%) rotate(-3deg);
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .55) 0 6px, rgba(255, 255, 255, .25) 6px 12px), var(--accent-soft);
+  opacity: .9; border-radius: 2px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
+}
+.note-text {
+  font-family: var(--hand); font-size: 18px; line-height: 1.35; white-space: pre-wrap; word-break: break-word;
+  display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer;
+}
+.note-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 6px; }
+.note-tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: rgba(255, 255, 255, .6); border-radius: 999px; padding: 3px 8px; }
+.note-actions { display: flex; gap: 4px; }
+.note-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .55);
+  color: rgba(58, 51, 88, .45); font-size: 16px; display: grid; place-items: center;
+}
+.note-btn.on { color: #fff; background: #f5a524; }
+.note-btn[data-done].on { background: #6c5fb8; }
+.note.done .note-text { text-decoration: line-through; text-decoration-color: rgba(58, 51, 88, .5); opacity: .6; }
+.note.done { filter: saturate(.7); }
+.stamp {
+  position: absolute; right: 8px; top: 30%; transform: rotate(-14deg); pointer-events: none;
+  border: 3px solid #6c5fb8; color: #6c5fb8; border-radius: 8px; padding: 2px 8px; font-weight: 800; font-size: 15px;
+  letter-spacing: .04em; background: rgba(255, 255, 255, .5); text-transform: uppercase;
+}
+.note.stamping .stamp { animation: stampIn .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes stampIn { from { transform: rotate(-14deg) scale(2.4); opacity: 0; } to { transform: rotate(-14deg) scale(1); opacity: 1; } }
+.note.drop { animation: noteDrop .65s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes noteDrop {
+  0% { transform: translateY(-60px) rotate(calc(var(--r) - 18deg)) scale(.8); opacity: 0; }
+  100% { transform: rotate(var(--r)); opacity: 1; }
+}
+
+/* Editor */
+.note-input { font-family: "Noteworthy", "Bradley Hand", ui-rounded, cursive; font-size: 19px; color: #3a3358 !important; min-height: 160px !important; border-radius: 6px 6px 18px 6px !important; }
+.swatches { display: flex; gap: 10px; }
+.swatch { width: 42px; height: 42px; border-radius: 12px; border: 2px solid rgba(0, 0, 0, .06); }
+.swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.swatch.just { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }

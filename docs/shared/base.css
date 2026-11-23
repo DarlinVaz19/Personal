@@ -634,3 +634,78 @@ h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: v
 .empty .ic { width: 64px; height: 64px; margin: 0 auto 10px; animation: rock 4s ease-in-out infinite; }
 .empty b { display: block; color: var(--text); font-size: 17px; margin-bottom: 2px; }
 [data-style="journal"] .empty b { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+
+/* =========================================================
+   Piezas compartidas entre secciones
+   ========================================================= */
+:root { --ic-water: #8ec9f2; }
+.ic .w { fill: var(--ic-water); }
+.ic.mini { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; }
+
+/* Barra superior con botón de inicio */
+.topbar { display: flex; align-items: center; gap: 12px; }
+.topbar .titles { min-width: 0; flex: 1; }
+.home-btn {
+  width: 46px; height: 46px; border-radius: 16px; flex: none; display: grid; place-items: center;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.home-btn .ic { width: 30px; height: 30px; }
+.home-btn:active { transform: scale(.94); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 14px 16px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.field textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; min-height: 110px; outline: 0; resize: vertical; font: inherit; color: inherit;
+}
+.field textarea:focus { border-color: var(--accent); }
+
+/* Botón flotante para agregar */
+.fab {
+  position: fixed; right: 18px; bottom: calc(env(safe-area-inset-bottom) + 22px); z-index: 12;
+  width: 62px; height: 62px; border-radius: 22px; border: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast);
+  box-shadow: var(--shadow), 0 10px 24px rgba(0, 0, 0, .18); display: grid; place-items: center;
+}
+.fab svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+.fab:active { transform: scale(.94); }
+body.no-tabbar main { padding-bottom: calc(env(safe-area-inset-bottom) + 110px); }
+
+/* Hoja emergente desde abajo */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 45; background: rgba(20, 16, 40, 0); transition: background .25s;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.sheet-backdrop.open { background: rgba(20, 16, 40, .38); }
+.sheet {
+  width: 100%; max-width: 560px; max-height: 90vh; overflow: auto; background: var(--surface-solid);
+  border-radius: 26px 26px 0 0; padding: 8px 18px calc(env(safe-area-inset-bottom) + 18px);
+  transform: translateY(100%); transition: transform .28s cubic-bezier(.2, .8, .3, 1); box-shadow: 0 -10px 40px rgba(0, 0, 0, .2);
+}
+.sheet-backdrop.open .sheet { transform: none; }
+.sheet-grip { width: 44px; height: 5px; border-radius: 3px; background: var(--border); margin: 4px auto 12px; }
+.sheet h3 { margin: 0 0 14px; font-size: 21px; }
+[data-style="journal"] .sheet h3 { font-family: var(--serif); font-weight: 500; font-size: 24px; }
+.sheet .btn.primary { margin-top: 10px; }
+body.sheet-open { overflow: hidden; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Selector de iconos */
+.icon-pick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.icon-pick button { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; padding: 0; }
+.icon-pick button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.icon-pick .ic { width: 30px; height: 30px; }
+
+/* Segmentos (pestañas internas) */
+.segmented { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 4px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.segmented button { flex: 1; border: 0; background: none; border-radius: 12px; padding: 9px 4px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.segmented button[aria-pressed="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast); font-weight: 600; }
+.segmented .ic { width: 22px; height: 22px; }
+
+/* Etiqueta de cuenta regresiva */
+.badge { display: inline-block; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; background: var(--accent-soft); color: var(--text); white-space: nowrap; }
+.badge.late { background: color-mix(in srgb, var(--out) 18%, transparent); color: var(--out); }
+.badge.soon { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }

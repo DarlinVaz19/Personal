@@ -1,41 +1,34 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-root="../">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mis Finanzas</title>
+<title>Finanzas · Mi cielo</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#efe6f3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Finanzas">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="styles.css">
-<script>
-  // Aplica el tema guardado antes de pintar, para que no parpadee.
-  try {
-    var t = (JSON.parse(localStorage.getItem('finanzas.v1')) || {}).theme || 'auto';
-    if (t === 'auto') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'nocheestrellada' : 'cielo';
-    document.documentElement.dataset.theme = t;
-    if (t === 'cielo' || t === 'nocheestrellada') document.documentElement.dataset.style = 'journal';
-  } catch (e) {}
-</script>
+<meta name="apple-mobile-web-app-title" content="Mi cielo">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="finanzas.css">
+<script src="../shared/theme-early.js"></script>
 </head>
 <body>
-<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i class="jet"></i></div>
-<div class="photo-bg" aria-hidden="true"></div>
 <header class="topbar">
-  <h1 id="title">Nuevo movimiento</h1>
-  <p class="subtitle" id="subtitle"></p>
+  <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
+  <div class="titles">
+    <h1 id="title">Nuevo movimiento</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
 </header>
 
 <main>
   <!-- NUEVO / EDITAR -->
   <section id="view-nuevo" class="view">
-    <div class="hero" id="hero"></div>
+    <div class="hero" id="hero" data-photo-card></div>
     <div class="edit-banner" id="editBanner" hidden>
       <span>Editando movimiento</span>
       <button type="button" class="link" id="cancelEdit">Cancelar</button>
@@ -111,33 +104,16 @@
 
   <!-- AJUSTES -->
   <section id="view-ajustes" class="view" hidden>
-    <h2>Tema</h2>
-    <div class="themes" id="themes"></div>
-
-    <h2>Foto</h2>
-    <div class="photo-admin">
-      <div class="photo-preview" id="photoPreview"></div>
-      <div class="stack" id="photoControls"></div>
-      <input type="file" id="photoFile" accept="image/*" hidden>
-    </div>
-
     <h2>Tarjetas y cuentas</h2>
     <div id="cardAdmin"></div>
     <button type="button" class="btn" id="addCard">+ Agregar tarjeta o cuenta</button>
 
-    <h2>Respaldo</h2>
-    <p class="muted">Tus datos viven solo en este teléfono. Exporta un respaldo de vez en cuando (y antes de cambiar de celular o borrar datos del navegador).</p>
-    <p class="muted" id="backupInfo"></p>
-    <div class="stack">
-      <button type="button" class="btn" id="exportJson">Exportar respaldo (.json)</button>
-      <button type="button" class="btn" id="importJson">Importar respaldo</button>
-      <button type="button" class="btn" id="exportCsv">Exportar a Excel (.csv)</button>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>
-    </div>
-    <p class="muted small" id="storageInfo"></p>
+    <h2>Exportar</h2>
+    <button type="button" class="btn" id="exportCsv">Exportar movimientos a Excel (.csv)</button>
 
-    <h2>Zona peligrosa</h2>
-    <button type="button" class="btn danger" id="wipe">Borrar todos los datos</button>
+    <h2>Tema, foto y respaldo</h2>
+    <p class="muted">Son generales para toda la app.</p>
+    <a class="btn" href="../ajustes/" data-nav>Ir a Ajustes generales ›</a>
   </section>
 </main>
 
@@ -159,11 +135,8 @@
   </button>
 </nav>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<div class="celebrate" id="celebrate"></div>
-
-<script src="icons.js"></script>
+<script src="../shared/icons.js"></script>
+<script src="../shared/core.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

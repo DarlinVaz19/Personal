@@ -1,38 +1,36 @@
 # Personal
 
-Apps personales para llevar distintos aspectos de mi vida.
+## Mi cielo (`docs/`)
 
-## Mis Finanzas (`docs/finanzas/`)
+App privada para el celular (PWA) con estilo de cielo, nubes, estrellas y jets ✈.
+Funciona sin internet y **todos los datos viven solo en el teléfono** (localStorage); nada se sube a ningún servidor.
 
-Web app instalable en el celular (PWA) para registrar gastos en MXN.
+Se abre en `https://darlinvaz19.github.io/Personal/` y se instala desde Safari con *Compartir → Agregar a pantalla de inicio*.
 
-- **Tipos de movimiento:** gasto personal, pagué por alguien (te debe todo o una parte), alguien pagó por mí (le debes), me pagaron, pagué una deuda, ingreso.
-- **Tarjetas:** Débito Banamex, Crédito Banamex, Débito Nu y Efectivo. Se editan en *Ajustes*.
-- **Deudas:** saldo por persona, con un botón para registrar cuando te pagan o pagas.
-- **Resumen mensual:** tu gasto personal, lo que salió de cada tarjeta y el gasto por categoría.
-- **Privacidad:** los datos se guardan **solo en el teléfono** (localStorage). Nada se sube al repo ni a ningún servidor.
-- **Temas:** estilo diario con nubes y estrellas: *Cielo* (atardecer pastel) y *Noche estrellada*. *Automático* (el predeterminado) usa Cielo de día y Noche estrellada en modo oscuro. También hay Menta, Sakura, Lavanda, Arena, Océano, Medianoche y Grafito.
-- **Iconos y animaciones:** iconos propios estilo cielo (`icons.js`), destellos al tocar, lluvia de estrellas y tarjeta de celebración al guardar, celebración especial al quedar "a mano" con alguien y montos que suben contando.
-- **Aviones ✈:** al registrar un gasto un avioncito despega desde el botón; cuando entra dinero (o al abrir la app) aterriza en la tarjeta de inicio. Un avión cruza el cielo de vez en cuando. Categoría *Viajes*.
-- **Foto:** en *Ajustes → Foto* eliges una imagen de tu carrete para el fondo y/o la tarjeta de inicio. Se guarda solo en el teléfono.
-- **Respaldo:** en *Ajustes → Exportar respaldo (.json)*. Se importa en el mismo lugar. También se puede exportar a CSV para Excel.
+### Secciones
 
-### Publicarla (GitHub Pages)
+| Sección | Qué hace |
+|---|---|
+| **Inicio** | Pase de abordar del día (hábitos, ánimo y gasto de hoy) y accesos a cada sección. Al tocar una, el jet despega. |
+| **Finanzas** | Gastos con tarjeta (Débito/Crédito Banamex, Débito Nu, Efectivo), deudas en ambos sentidos, ingresos. Movimientos como pase de abordar y resumen como bitácora de vuelo. |
+| **Ideas** | Tablero de notas adhesivas con colores, etiquetas, favoritas y "¡Hecho!". |
+| **Gatos** | Pasaporte felino por gato, salud y veterinario (con próxima fecha), peso con gráfica y compras (se pueden registrar también en Finanzas). |
+| **Hábitos** | Marca tus hábitos del día, rachas, semana a la vista y pista de despegue. |
+| **Diario** | Nota del día y estado de ánimo con iconos de cielo, calendario del mes. |
+| **Ajustes** | Tema (Cielo, Noche estrellada y más), foto de fondo y respaldo de todo en un solo `.json`. |
 
-1. El repo debe ser público (Pages es gratis solo en repos públicos): **Settings → General → Danger Zone → Change visibility**.
-2. En **Settings → Pages**, elige *Deploy from a branch*, rama `main` y carpeta `/docs`.
-3. Abre `https://<tu-usuario>.github.io/Personal/finanzas/` en el celular.
-4. Instálala:
-   - **iPhone (Safari):** Compartir → *Agregar a pantalla de inicio*.
-   - **Android (Chrome):** menú ⋮ → *Instalar app*.
+### Estructura
 
-> El código queda público en Pages, pero tus datos no: viven solo en tu teléfono.
-
-### Probarla en tu computadora
-
-```sh
-cd docs && python3 -m http.server 8000
-# abre http://localhost:8000/finanzas/
+```
+docs/
+  index.html, hub.js, hub.css     pantalla de inicio
+  sw.js, manifest.webmanifest     app instalable y sin internet
+  shared/                         estilos, iconos, temas, efectos y jets compartidos
+  finanzas/ ideas/ gatos/ habitos/ diario/ ajustes/
 ```
 
-Si cambias archivos, sube la versión de `CACHE` en `docs/finanzas/sw.js` para que el teléfono descargue la actualización.
+### Publicar cambios
+
+GitHub Pages publica desde la rama `main`, carpeta `/docs`. Al cambiar archivos, sube la versión de `CACHE` en `docs/sw.js` para que el teléfono descargue la actualización.
+
+Para probar en la computadora: `cd docs && python3 -m http.server 8000` y abre `http://localhost:8000/`.

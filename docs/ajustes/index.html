@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ajustes · Mi cielo</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#efe6f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi cielo">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../shared/base.css">
+<script src="../shared/theme-early.js"></script>
+</head>
+<body class="no-tabbar">
+<header class="topbar">
+  <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
+  <div class="titles">
+    <h1>Ajustes</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+</header>
+
+<main>
+  <h2>Tema</h2>
+  <div class="themes" id="themes"></div>
+
+  <h2>Foto</h2>
+  <div class="photo-admin">
+    <div class="photo-preview" id="photoPreview"></div>
+    <div class="stack" id="photoControls"></div>
+    <input type="file" id="photoFile" accept="image/*" hidden>
+  </div>
+
+  <h2>Respaldo</h2>
+  <p class="muted">Todo vive solo en este teléfono: finanzas, ideas, gatos, hábitos y diario. Exporta un respaldo de vez en cuando y antes de cambiar de celular.</p>
+  <p class="muted" id="backupInfo"></p>
+  <div class="stack">
+    <button type="button" class="btn" id="exportJson">Exportar respaldo de todo (.json)</button>
+    <button type="button" class="btn" id="importJson">Importar respaldo</button>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+  <p class="muted small" id="storageInfo"></p>
+
+  <h2>Zona peligrosa</h2>
+  <button type="button" class="btn danger" id="wipe">Borrar todos los datos</button>
+</main>
+
+<script src="../shared/icons.js"></script>
+<script src="../shared/core.js"></script>
+<script src="ajustes.js"></script>
+</body>
+</html>

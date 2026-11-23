@@ -1,12 +1,11 @@
 'use strict';
 
 /* ============================================================
-   Mis Finanzas — PWA privada. Los datos viven solo en este
-   dispositivo (localStorage). Respaldo manual en Ajustes.
+   Finanzas — sección de "Mi cielo". Usa shared/core.js e
+   shared/icons.js. Los datos viven solo en este teléfono.
    ============================================================ */
 
 const STORAGE_KEY = 'finanzas.v1';
-const PHOTO_KEY = 'finanzas.foto'; // la foto va aparte para que el respaldo .json no pese
 
 const DEFAULT_CARDS = [
   { id: 'banamex-debito', name: 'Débito Banamex', kind: 'debito', color: '#c8102e' },
@@ -26,6 +25,7 @@ const CATEGORIES = [
   { id: 'compras', name: 'Compras', icon: '🛍️' },
   { id: 'suscripciones', name: 'Suscripciones', icon: '🔁' },
   { id: 'viajes', name: 'Viajes', icon: '✈' },
+  { id: 'mascotas', name: 'Mascotas', icon: '🐾' },
   { id: 'otros', name: 'Otros', icon: '•' },
 ];
 
@@ -47,19 +47,6 @@ const TYPES = {
 };
 const TYPE_ORDER = ['gasto', 'prestado', 'debo', 'cobro', 'pago', 'ingreso'];
 
-const THEMES = [
-  { id: 'auto', name: 'Automático', swatch: 'linear-gradient(135deg,#f8dccf,#d9e4f6 50%,#1b2150 50%,#2a2763)', style: 'journal' },
-  { id: 'cielo', name: 'Cielo', swatch: 'radial-gradient(circle at 75% 30%,#fff 0 3px,transparent 4px),radial-gradient(circle at 30% 65%,#fff 0 2px,transparent 3px),linear-gradient(180deg,#f8dccf,#ece0f3 50%,#d9e4f6)', style: 'journal' },
-  { id: 'nocheestrellada', name: 'Noche estrellada', swatch: 'radial-gradient(circle at 70% 30%,#f3c894 0 3px,transparent 4px),radial-gradient(circle at 30% 60%,#fff 0 2px,transparent 3px),radial-gradient(circle at 50% 80%,#d9ccff 0 1.5px,transparent 2.5px),linear-gradient(180deg,#0f1430,#2a2763)', style: 'journal' },
-  { id: 'menta', name: 'Menta', swatch: 'linear-gradient(135deg,#0f766e,#34d399)' },
-  { id: 'sakura', name: 'Sakura', swatch: 'linear-gradient(135deg,#c93d68,#f9a8c0)' },
-  { id: 'lavanda', name: 'Lavanda', swatch: 'linear-gradient(135deg,#6a49c9,#c4a7f5)' },
-  { id: 'arena', name: 'Arena', swatch: 'linear-gradient(135deg,#b0532c,#e9c79a)' },
-  { id: 'oceano', name: 'Océano', swatch: 'linear-gradient(135deg,#1667ad,#4fc3e8)' },
-  { id: 'medianoche', name: 'Medianoche', swatch: 'linear-gradient(135deg,#1c1733,#a78bfa 60%,#f472b6)' },
-  { id: 'grafito', name: 'Grafito', swatch: 'linear-gradient(135deg,#1d2024 45%,#facc15 45%,#fb923c)' },
-];
-
 const TITLES = {
   nuevo: 'Nuevo movimiento',
   movs: 'Movimientos',
@@ -68,66 +55,6 @@ const TITLES = {
   ajustes: 'Ajustes',
 };
 
-/* ---------------- Utilidades ---------------- */
-
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-
-const money = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
-const fmt = (n) => money.format(Math.round(n * 100) / 100);
-
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
-function parseAmount(str) {
-  if (str == null) return NaN;
-  const clean = String(str).replace(/[$\s,]/g, '');
-  if (clean === '') return NaN;
-  const n = Number(clean);
-  return Number.isFinite(n) ? Math.round(n * 100) / 100 : NaN;
-}
-
-function pad(n) { return String(n).padStart(2, '0'); }
-function todayISO() {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-function monthOf(iso) { return iso.slice(0, 7); }
-function shiftMonth(ym, delta) {
-  const [y, m] = ym.split('-').map(Number);
-  const d = new Date(y, m - 1 + delta, 1);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-}
-function monthLabel(ym) {
-  const [y, m] = ym.split('-').map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
-}
-function dayLabel(iso) {
-  const [y, m, d] = iso.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  const t = todayISO();
-  if (iso === t) return 'Hoy';
-  const yest = new Date(); yest.setDate(yest.getDate() - 1);
-  if (iso === `${yest.getFullYear()}-${pad(yest.getMonth() + 1)}-${pad(yest.getDate())}`) return 'Ayer';
-  return date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' });
-}
-
-function uid() {
-  if (crypto.randomUUID) return crypto.randomUUID();
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-}
-
-function personKey(name) { return String(name || '').trim().toLocaleLowerCase('es-MX'); }
-
-let toastTimer;
-function toast(msg) {
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
-}
 
 /* ---------------- Datos ---------------- */
 
@@ -169,6 +96,7 @@ const ui = {
   form: { type: 'gasto', cardId: null, category: null },
 };
 
+function personKey(name) { return String(name || '').trim().toLocaleLowerCase('es-MX'); }
 function cardById(id) { return db.cards.find((c) => c.id === id); }
 function cardName(id) { return cardById(id)?.name ?? (id ? 'Tarjeta eliminada' : ''); }
 function categoryById(id) { return CATEGORIES.find((c) => c.id === id); }
@@ -210,224 +138,6 @@ function sortedMovements(list) {
   return list.slice().sort((a, b) => (b.date.localeCompare(a.date)) || (b.createdAt - a.createdAt));
 }
 
-/* ---------------- Tema ---------------- */
-
-const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-function applyTheme() {
-  let t = db.theme || 'auto';
-  if (t === 'auto') t = darkQuery.matches ? 'nocheestrellada' : 'cielo';
-  document.documentElement.dataset.theme = t;
-  const journal = t === 'cielo' || t === 'nocheestrellada';
-  if (journal) document.documentElement.dataset.style = 'journal';
-  else delete document.documentElement.dataset.style;
-  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-}
-
-/* ---------------- Foto ---------------- */
-
-function getPhoto() { try { return localStorage.getItem(PHOTO_KEY); } catch (e) { return null; } }
-function photoSettings() { return { where: 'ambos', visibility: 35, ...(db.photo || {}) }; }
-
-function applyPhoto() {
-  const img = getPhoto();
-  const ps = photoSettings();
-  const root = document.documentElement;
-  root.style.setProperty('--photo', img ? `url("${img}")` : 'none');
-  root.style.setProperty('--photo-veil', String(1 - ps.visibility / 100));
-  document.body.classList.toggle('photo-on', !!img && (ps.where === 'fondo' || ps.where === 'ambos'));
-  $('#hero')?.classList.toggle('photo', !!img && (ps.where === 'tarjeta' || ps.where === 'ambos'));
-}
-
-// Reduce la foto (máx. 1400 px) para que quepa en el almacenamiento del teléfono.
-function loadPhoto(file) {
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.onload = () => {
-    const max = 1400;
-    const scale = Math.min(1, max / Math.max(img.width, img.height));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-    URL.revokeObjectURL(url);
-    let data = canvas.toDataURL('image/jpeg', 0.82);
-    try {
-      localStorage.setItem(PHOTO_KEY, data);
-    } catch (e) {
-      try {
-        data = canvas.toDataURL('image/jpeg', 0.6);
-        localStorage.setItem(PHOTO_KEY, data);
-      } catch (e2) {
-        alert('La foto es demasiado grande para guardarla. Prueba con otra.');
-        return;
-      }
-    }
-    applyPhoto();
-    renderSettings();
-    toast('Foto aplicada');
-  };
-  img.onerror = () => { URL.revokeObjectURL(url); alert('No se pudo abrir esa imagen.'); };
-  img.src = url;
-}
-
-function renderPhotoAdmin() {
-  const img = getPhoto();
-  const ps = photoSettings();
-  $('#photoPreview').textContent = img ? '' : 'Sin foto';
-  const where = [['fondo', 'Fondo'], ['tarjeta', 'Tarjeta de inicio'], ['ambos', 'Ambos']];
-  $('#photoControls').innerHTML = `
-    <button type="button" class="btn" data-photo="pick">${img ? 'Cambiar foto' : 'Elegir foto'}</button>
-    ${img ? `
-      <div class="label" style="margin-top:10px">¿Dónde se muestra?</div>
-      <div class="chips">${where.map(([id, name]) =>
-        `<button type="button" class="chip" data-photo-where="${id}" aria-pressed="${ps.where === id}">${name}</button>`).join('')}</div>
-      <label class="label" for="photoVis" style="margin-top:10px">Qué tanto se ve en el fondo</label>
-      <input type="range" id="photoVis" min="10" max="80" step="5" value="${ps.visibility}">
-      <button type="button" class="btn danger" data-photo="remove">Quitar foto</button>` : ''}`;
-}
-
-/* ---------------- Efectos ---------------- */
-
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-
-// Vuelve a disparar una animación CSS ligada a una clase.
-function replay(el, cls) {
-  if (!el) return;
-  el.classList.remove(cls);
-  void el.offsetWidth;
-  el.classList.add(cls);
-  el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
-}
-
-function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-const PARTICLE_SHAPES = {
-  star: (c) => `<svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6.1.7-4.5 4.2 1.2 6L10 14.6 4.6 17.5l1.2-6L1.3 7.3l6.1-.7z" fill="${c}"/></svg>`,
-  sparkle: (c) => `<svg viewBox="0 0 20 20"><path d="M10 0Q11.6 8.4 20 10Q11.6 11.6 10 20Q8.4 11.6 0 10Q8.4 8.4 10 0Z" fill="${c}"/></svg>`,
-  heart: (c) => `<svg viewBox="0 0 20 20"><path d="M10 18C-1 10 3 1 10 5.5 17 1 21 10 10 18Z" fill="${c}"/></svg>`,
-  dot: (c) => `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="${c}"/></svg>`,
-  cloud: () => `<svg viewBox="0 0 32 20"><g fill="#fff" fill-opacity=".95"><circle cx="9" cy="12" r="6"/><circle cx="17" cy="8" r="8"/><circle cx="25" cy="12" r="5.5"/><rect x="3" y="11" width="27" height="7" rx="3.5"/></g></svg>`,
-};
-
-// Lluvia de estrellas, destellos y corazones desde (x, y).
-function burst(x, y, { count = 10, spread = 80, size = [8, 16], duration = 900 } = {}) {
-  if (reduceMotion.matches) return;
-  const colors = [cssVar('--ic-spark'), cssVar('--ic-heart'), cssVar('--accent'), cssVar('--accent-2'), '#ffffff'];
-  const shapes = ['star', 'sparkle', 'sparkle', 'heart', 'dot'];
-  for (let i = 0; i < count; i++) {
-    const shape = count > 15 && i % 9 === 0 ? 'cloud' : shapes[i % shapes.length];
-    const el = document.createElement('span');
-    el.className = 'particle';
-    const s = size[0] + Math.random() * (size[1] - size[0]) * (shape === 'cloud' ? 1.8 : 1);
-    el.style.width = el.style.height = `${s}px`;
-    el.innerHTML = PARTICLE_SHAPES[shape](colors[(Math.random() * colors.length) | 0]);
-    document.body.appendChild(el);
-    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.6;
-    const dist = spread * (0.45 + Math.random() * 0.55);
-    const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist - spread * 0.25;
-    const rot = (Math.random() - 0.5) * 540;
-    const anim = el.animate([
-      { transform: `translate(${x - s / 2}px, ${y - s / 2}px) scale(.2) rotate(0deg)`, opacity: 1 },
-      { transform: `translate(${x - s / 2 + dx}px, ${y - s / 2 + dy}px) scale(1) rotate(${rot}deg)`, opacity: 1, offset: 0.55 },
-      { transform: `translate(${x - s / 2 + dx * 1.15}px, ${y - s / 2 + dy + spread * 0.45}px) scale(.5) rotate(${rot * 1.4}deg)`, opacity: 0 },
-    ], { duration: duration * (0.8 + Math.random() * 0.4), easing: 'cubic-bezier(.2,.7,.3,1)' });
-    anim.onfinish = () => el.parentNode && el.parentNode.removeChild(el);
-  }
-}
-
-// Tarjeta de celebración en el centro de la pantalla.
-function celebrate(iconName, title, sub, big = false) {
-  const host = $('#celebrate');
-  host.innerHTML = `<div class="card">${icon(iconName)}<b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}</div>`;
-  if (big && !reduceMotion.matches) {
-    // confeti extra que cae desde arriba
-    for (let i = 0; i < 6; i++) {
-      setTimeout(() => burst(window.innerWidth * (0.15 + Math.random() * 0.7), window.innerHeight * 0.25,
-        { count: 10, spread: 120, size: [10, 18], duration: 1300 }), i * 120);
-    }
-  }
-}
-
-// Anima un monto de un valor a otro.
-function countUp(el, from, to) {
-  if (!el) return;
-  if (reduceMotion.matches) { el.textContent = fmt(to); return; }
-  const start = performance.now();
-  const dur = 750;
-  const step = (now) => {
-    const k = Math.min(1, (now - start) / dur);
-    const e = 1 - Math.pow(1 - k, 3);
-    el.textContent = fmt(from + (to - from) * e);
-    if (k < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-/* ---------------- Aviones ✈ ---------------- */
-
-// Nubecita de la estela que deja el avión.
-function puff(x, y, size = 10) {
-  const el = document.createElement('span');
-  el.className = 'puff';
-  el.style.left = `${x - size / 2}px`;
-  el.style.top = `${y - size / 2}px`;
-  el.style.width = el.style.height = `${size}px`;
-  document.body.appendChild(el);
-  el.addEventListener('animationend', () => el.parentNode && el.parentNode.removeChild(el), { once: true });
-}
-
-// Vuela un avioncito por una curva (4 puntos de control). La nariz sigue la curva.
-function flight(points, { duration = 1700, size = 40, easing = (t) => t, trail = true, fadeOut = false } = {}) {
-  if (reduceMotion.matches) return;
-  const el = document.createElement('span');
-  el.className = 'plane-fly';
-  el.style.width = el.style.height = `${size}px`;
-  el.innerHTML = icon('avion');
-  document.body.appendChild(el);
-  const [p0, p1, p2, p3] = points;
-  const B = (t, k) => (1 - t) ** 3 * p0[k] + 3 * (1 - t) ** 2 * t * p1[k] + 3 * (1 - t) * t * t * p2[k] + t ** 3 * p3[k];
-  const D = (t, k) => 3 * (1 - t) ** 2 * (p1[k] - p0[k]) + 6 * (1 - t) * t * (p2[k] - p1[k]) + 3 * t * t * (p3[k] - p2[k]);
-  const start = performance.now();
-  let lastPuff = 0;
-  const step = (now) => {
-    const r = Math.min(1, (now - start) / duration);
-    const t = easing(r);
-    const x = B(t, 0), y = B(t, 1);
-    const ang = Math.atan2(D(t, 1), D(t, 0) || 0.0001);
-    el.style.transform = `translate(${x - size / 2}px, ${y - size / 2}px) rotate(${ang}rad)`;
-    if (fadeOut && r > 0.75) el.style.opacity = String(Math.max(0, (1 - r) / 0.25));
-    if (trail && now - lastPuff > 45 && r > 0.04 && r < 0.96) {
-      lastPuff = now;
-      puff(x - Math.cos(ang) * size * 0.5, y - Math.sin(ang) * size * 0.5, size * (0.22 + Math.random() * 0.12));
-    }
-    if (r < 1) requestAnimationFrame(step);
-    else if (el.parentNode) el.parentNode.removeChild(el);
-  };
-  requestAnimationFrame(step);
-}
-
-// Despega desde un botón: carretea, se eleva y sale por arriba a la derecha.
-function takeoff(rect) {
-  const vw = window.innerWidth;
-  const y = rect.top + rect.height / 2;
-  const x = rect.left + 36;
-  flight([[x, y], [x + rect.width * 0.55, y], [vw * 0.9, y - 110], [vw + 90, y - 380]],
-    { duration: 1800, size: 50, easing: (t) => t * t * (0.35 + 0.65 * t) });
-}
-
-// Aterriza sobre la tarjeta de inicio: baja desde la izquierda, toca y frena.
-function landOnHero() {
-  const hero = $('#hero');
-  if (!hero || hero.hidden || ui.tab !== 'nuevo') return;
-  const r = hero.getBoundingClientRect();
-  if (r.bottom < 0 || r.top > window.innerHeight) return;
-  const vw = window.innerWidth;
-  const ground = r.bottom - 12;
-  flight([[-60, r.top - 70], [vw * 0.22, r.top - 30], [vw * 0.36, ground], [vw * 0.72, ground]],
-    { duration: 2300, size: 48, easing: (t) => 1 - Math.pow(1 - t, 2.6), fadeOut: true });
-}
 
 /* ---------------- Navegación ---------------- */
 
@@ -658,7 +368,7 @@ function submitForm() {
   if (TYPES[record.type].flow === 'in') {
     // Entra dinero: el avión aterriza en tu tarjeta de inicio.
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(landOnHero, 450);
+    setTimeout(() => { if (ui.tab === 'nuevo') landOn($('#hero')); }, 450);
   } else {
     // Sale dinero: el avión despega desde el botón.
     takeoff(btn);
@@ -682,24 +392,24 @@ function movementRow(m, i = 0) {
   const t = TYPES[m.type] || { label: m.type, icon: '•', flow: 'none' };
   const cat = categoryById(m.category);
   const title = m.note || (m.person && m.type !== 'gasto' ? `${t.label}: ${m.person}` : cat?.name) || t.label;
-  const parts = [t.label];
-  if (m.person) parts.push(m.person);
-  if (m.cardId) parts.push(cardName(m.cardId));
-  else if (m.type === 'debo') parts.push('sin tarjeta');
   const cls = t.flow === 'out' ? 'out' : t.flow === 'in' ? 'in' : 'neutral';
   const sign = t.flow === 'out' ? '−' : t.flow === 'in' ? '+' : '';
   let sub = '';
   if (m.type === 'prestado') sub = `<small>te debe ${fmt(m.owed ?? m.amount)}</small>`;
   if (m.type === 'debo') sub = '<small>le debes</small>';
   const card = cardById(m.cardId);
+  // Ruta del "vuelo": de dónde sale el dinero → a dónde va.
+  const from = t.flow === 'in' ? (m.person || 'Ingreso') : (card?.name || (m.type === 'debo' ? m.person : 'Sin tarjeta'));
+  const to = t.flow === 'in' ? (card?.name || 'Tu bolsillo') : (m.type === 'pago' ? m.person : (cat?.name || t.label));
   return `
     <button type="button" class="item" data-edit="${esc(m.id)}" style="--i:${i}">
       <span class="bubble">${icon(cat && t.category ? cat.id : m.type)}${card ? `<span class="dot" style="background:${esc(card.color)}"></span>` : ''}</span>
       <span class="main">
         <div class="t">${esc(title)}</div>
-        <div class="s">${esc(parts.join(' · '))}</div>
+        <div class="s route"><span>${esc(from)}</span>${icon('avion', 'mini')}<span>${esc(to)}</span></div>
+        ${title !== t.label ? `<div class="s">${esc([t.label, m.person].filter(Boolean).join(' · '))}</div>` : ''}
       </span>
-      <span class="amt ${cls}">${sign}${fmt(m.amount)}${sub}</span>
+      <span class="amt ${cls}"><small class="gate">${t.flow === 'in' ? 'LLEGADA' : t.flow === 'out' ? 'SALIDA' : 'PENDIENTE'}</small>${sign}${fmt(m.amount)}${sub}</span>
     </button>`;
 }
 
@@ -723,7 +433,7 @@ function renderMovements() {
   }
   $('#movList').innerHTML = Array.from(groups.entries()).map(([date, items]) => `
     <div class="day">${esc(dayLabel(date))}</div>
-    <div class="list">${items.map(movementRow).join('')}</div>`).join('');
+    <div class="passes">${items.map(movementRow).join('')}</div>`).join('');
 }
 
 /* ---------------- Deudas ---------------- */
@@ -809,7 +519,26 @@ function renderSummary() {
     return;
   }
 
+  const outs = ms.filter((m) => TYPES[m.type]?.flow === 'out');
+  const ins = ms.filter((m) => TYPES[m.type]?.flow === 'in');
+  const cardUse = new Map();
+  for (const m of ms) if (m.cardId) cardUse.set(m.cardId, (cardUse.get(m.cardId) || 0) + 1);
+  const favCard = Array.from(cardUse.entries()).sort((a, b) => b[1] - a[1])[0];
+  const topCat = catRows[0] ? (categoryById(catRows[0][0]) || { name: catRows[0][0] }) : null;
+  const fuel = outs.reduce((s, m) => s + m.amount, 0);
+  const [y, mo] = ui.month.split('-').map(Number);
+  const logMonth = new Date(y, mo - 1, 1).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }).replace('.', '').toUpperCase();
+
   $('#summary').innerHTML = `
+    <div class="logbook">
+      <div class="lb-head"><span>${icon('avion')}BITÁCORA DE VUELO</span><span>${esc(logMonth)}</span></div>
+      <div class="lb-row"><span>Despegues <em>(salidas de dinero)</em></span><b>${outs.length}</b></div>
+      <div class="lb-row"><span>Aterrizajes <em>(entradas)</em></span><b>${ins.length}</b></div>
+      <div class="lb-row"><span>Combustible usado</span><b>${fmt(fuel)}</b></div>
+      <div class="lb-row"><span>Ruta más volada</span><b>${topCat ? esc(topCat.name) : '—'}</b></div>
+      <div class="lb-row"><span>Avión favorito</span><b>${favCard ? esc(cardName(favCard[0])) : '—'}</b></div>
+      <div class="lb-sign">Capitán(a) de tus finanzas ✦</div>
+    </div>
     <div class="totals">
       <div class="stat wide"><div class="k">Tu gasto personal</div><div class="v">${fmt(personal)}</div></div>
       <div class="stat"><div class="k">Ingresos</div><div class="v in">${fmt(income)}</div></div>
@@ -828,15 +557,10 @@ function renderSummary() {
     }).join('') : '<div class="empty" style="padding:16px">Sin gastos personales.</div>'}</div>`;
 }
 
+
 /* ---------------- Ajustes ---------------- */
 
 function renderSettings() {
-  renderPhotoAdmin();
-  $('#themes').innerHTML = THEMES.map((t) => `
-    <button type="button" class="theme-opt" data-theme-id="${t.id}" aria-pressed="${(db.theme || 'auto') === t.id}">
-      <span class="sw" style="background:${t.swatch}"></span>${esc(t.name)}
-    </button>`).join('');
-
   $('#cardAdmin').innerHTML = `<div class="list">${db.cards.map((c) => `
     <div class="card-row" data-card-row="${esc(c.id)}">
       <input type="color" value="${esc(c.color)}" data-card-color aria-label="Color">
@@ -849,46 +573,6 @@ function renderSettings() {
       </select>
       <button type="button" class="icon-btn" data-card-del aria-label="Eliminar">×</button>
     </div>`).join('') || '<div class="empty">Sin tarjetas.</div>'}</div>`;
-
-  $('#backupInfo').textContent = `${db.movements.length} movimiento${db.movements.length === 1 ? '' : 's'} guardado${db.movements.length === 1 ? '' : 's'}. ` +
-    (db.lastBackup ? `Último respaldo: ${new Date(db.lastBackup).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}.` : 'Aún no has exportado un respaldo.');
-
-  if (navigator.storage?.persisted) {
-    navigator.storage.persisted().then((p) => {
-      $('#storageInfo').textContent = p
-        ? 'Almacenamiento persistente activado: el navegador no borrará tus datos automáticamente.'
-        : 'Consejo: instala la app en tu pantalla de inicio para que el navegador conserve tus datos.';
-    });
-  }
-}
-
-function download(filename, content, type) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-async function exportJson() {
-  db.lastBackup = Date.now();
-  save();
-  const json = JSON.stringify(db, null, 2);
-  const filename = `finanzas-respaldo-${todayISO()}.json`;
-  // En el celular, el menú de compartir permite guardarlo en Archivos / Drive.
-  try {
-    const file = new File([json], filename, { type: 'application/json' });
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Respaldo de finanzas' });
-      renderSettings();
-      return;
-    }
-  } catch (e) {
-    if (e.name === 'AbortError') return;
-  }
-  download(filename, json, 'application/json');
-  renderSettings();
 }
 
 function exportCsv() {
@@ -899,27 +583,7 @@ function exportCsv() {
     m.type === 'prestado' ? (m.owed ?? m.amount).toFixed(2) : '',
     personalExpense(m).toFixed(2), categoryById(m.category)?.name || '', m.note || '',
   ].map(q).join(','));
-  download(`finanzas-${todayISO()}.csv`, '﻿' + [head.join(','), ...rows].join('\n'), 'text/csv');
-}
-
-function importJson(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(reader.result);
-      if (!data || !Array.isArray(data.movements) || !Array.isArray(data.cards)) throw new Error('formato');
-      if (!confirm(`Esto reemplazará tus datos actuales con el respaldo (${data.movements.length} movimientos). ¿Continuar?`)) return;
-      db = { ...emptyDb(), ...data };
-      save();
-      applyTheme();
-      resetForm(false);
-      toast('Respaldo importado');
-      render();
-    } catch (e) {
-      alert('Ese archivo no parece un respaldo válido de esta app.');
-    }
-  };
-  reader.readAsText(file);
+  download(`finanzas-${todayISO()}.csv`, '\ufeff' + [head.join(','), ...rows].join('\n'), 'text/csv');
 }
 
 /* ---------------- Eventos ---------------- */
@@ -1029,61 +693,7 @@ function bind() {
     renderSettings();
   });
 
-  $('#themes').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-theme-id]');
-    if (!b) return;
-    db.theme = b.dataset.themeId;
-    save();
-    applyTheme();
-    renderSettings();
-    replay($(`#themes [data-theme-id="${db.theme}"]`), 'just');
-  });
-  darkQuery.addEventListener?.('change', applyTheme);
-
-  $('#photoControls').addEventListener('click', (e) => {
-    const pick = e.target.closest('[data-photo="pick"]');
-    if (pick) { $('#photoFile').click(); return; }
-    if (e.target.closest('[data-photo="remove"]')) {
-      if (!confirm('¿Quitar la foto?')) return;
-      localStorage.removeItem(PHOTO_KEY);
-      applyPhoto(); renderSettings();
-      return;
-    }
-    const w = e.target.closest('[data-photo-where]');
-    if (w) { db.photo = { ...photoSettings(), where: w.dataset.photoWhere }; save(); applyPhoto(); renderSettings(); }
-  });
-  $('#photoControls').addEventListener('input', (e) => {
-    if (e.target.id !== 'photoVis') return;
-    db.photo = { ...photoSettings(), visibility: Number(e.target.value) };
-    applyPhoto();
-  });
-  $('#photoControls').addEventListener('change', (e) => { if (e.target.id === 'photoVis') save(); });
-  $('#photoFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) loadPhoto(file);
-    e.target.value = '';
-  });
-
-  $('#exportJson').addEventListener('click', exportJson);
   $('#exportCsv').addEventListener('click', exportCsv);
-  $('#importJson').addEventListener('click', () => $('#importFile').click());
-  $('#importFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) importJson(file);
-    e.target.value = '';
-  });
-  $('#wipe').addEventListener('click', () => {
-    if (!confirm('¿Borrar TODOS tus movimientos y tarjetas de este teléfono? Esto no se puede deshacer.')) return;
-    if (prompt('Escribe BORRAR para confirmar') !== 'BORRAR') return;
-    db = emptyDb();
-    save();
-    localStorage.removeItem(PHOTO_KEY);
-    applyTheme();
-    applyPhoto();
-    resetForm(false);
-    toast('Datos borrados');
-    render();
-  });
 }
 
 /* ---------------- Inicio ---------------- */
@@ -1091,25 +701,12 @@ function bind() {
 function init() {
   // Primera vez: guardar tarjetas por defecto.
   if (!localStorage.getItem(STORAGE_KEY)) save();
-  applyTheme();
-  applyPhoto();
   for (const b of $$('#tabbar [data-tab]')) b.querySelector('svg').outerHTML = icon(`tab_${b.dataset.tab}`);
-  document.addEventListener('pointerdown', (e) => {
-    const t = e.target.closest('.type, .chip, .theme-opt, .tabbar button, .month-nav button, .btn:not(.primary)');
-    if (t) burst(e.clientX, e.clientY, { count: 6, spread: 34, size: [7, 12], duration: 550 });
-  });
+  initPage();
   bind();
-  $('.sky .jet').innerHTML = icon('avion');
-  setTimeout(landOnHero, 700);
   resetForm(false);
   setTab('nuevo');
-
-  // Pedir que el navegador no borre los datos.
-  if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
-
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
-  }
+  setTimeout(() => landOn($('#hero')), 700);
 }
 
 init();
