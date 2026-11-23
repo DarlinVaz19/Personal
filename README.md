@@ -12,7 +12,7 @@ Se abre en `https://darlinvaz19.github.io/Personal/` y se instala desde Safari c
 | Sección | Qué hace |
 |---|---|
 | **Inicio** | Pase de abordar del día (hábitos, ánimo y gasto de hoy) y accesos a cada sección. Al tocar una, el jet despega. |
-| **Finanzas** | Gastos con tarjeta (Débito/Crédito Banamex, Débito Nu, Efectivo), deudas en ambos sentidos, ingresos. Movimientos como pase de abordar y resumen como bitácora de vuelo. |
+| **Finanzas** | Gastos con tarjeta (Débito/Crédito Banamex, Débito Nu, Efectivo), préstamos y deudas en ambos sentidos ("Me prestaron", "Presté dinero", "Pagué por alguien"…), ingresos. Movimientos como pase de abordar y resumen como bitácora de vuelo. |
 | **Ideas** | Tablero de notas adhesivas con colores, etiquetas, favoritas y "¡Hecho!". |
 | **Gatos** | Pasaporte felino por gato, salud y veterinario (con próxima fecha), peso con gráfica y compras (se pueden registrar también en Finanzas). |
 | **Hábitos** | Marca tus hábitos del día, rachas, semana a la vista y pista de despegue. |

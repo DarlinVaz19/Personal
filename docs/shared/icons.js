@@ -63,6 +63,18 @@ const ICONS = {
     <path class="a o" d="M15 19l13-14.5-15 17.5z"/>
     <path class="l" d="M3.5 24.5c2-1.3 3.6-1.3 5.2 0M6 29c1.6-1 2.8-1 4.2 0" stroke-dasharray="1.5 2.4"/>
     ${sp(8, 6.5, 2.6)}`,
+  meprestaron: () => `
+    <path class="a o" d="M3.5 19.5h7l2 3h7l2-3h7v6.6a2.2 2.2 0 0 1-2.2 2.2H5.7a2.2 2.2 0 0 1-2.2-2.2z"/>
+    <circle class="s o" cx="16" cy="9" r="6"/>
+    <circle class="l" cx="16" cy="9" r="3.6" stroke-dasharray="1.2 1.8"/>
+    <path class="l" d="M16 16.5v2.5M8.5 9.5l-2-1M23.5 9.5l2-1"/>
+    <path class="h o" d="${heart(26.5, 4.5, 2.2)}"/>`,
+  preste: () => `
+    <path class="a o" d="M3.5 19.5h7l2 3h7l2-3h7v6.6a2.2 2.2 0 0 1-2.2 2.2H5.7a2.2 2.2 0 0 1-2.2-2.2z"/>
+    <path class="l" d="M10 16.5l7-7M14.5 9.5h2.5V12"/>
+    <circle class="s o" cx="22" cy="7.5" r="5.5"/>
+    <circle class="l" cx="22" cy="7.5" r="3.2" stroke-dasharray="1.2 1.8"/>
+    ${sp(6, 7, 2.4)}`,
   ingreso: () => `
     <path class="l" d="M3.5 28.5l8.5-8.5M3 21.5l5.5-5.5M10.5 30l5-5"/>
     <path class="s o" d="${star5(19.5, 12.5, 9.5, 4.4)}"/>

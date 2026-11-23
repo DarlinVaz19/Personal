@@ -43,9 +43,11 @@ const TYPES = {
   debo:     { label: 'Alguien pagó por mí', icon: '🙋', card: false,      person: true,  category: true,  flow: 'none' },
   cobro:    { label: 'Me pagaron',          icon: '📥', card: 'optional', person: true,  category: false, flow: 'in' },
   pago:     { label: 'Pagué una deuda',     icon: '📤', card: 'required', person: true,  category: false, flow: 'out' },
+  meprestaron: { label: 'Me prestaron',   icon: '🏦', card: 'optional', person: true,  category: false, flow: 'in' },
+  preste:   { label: 'Presté dinero',       icon: '🪙', card: 'required', person: true,  category: false, flow: 'out' },
   ingreso:  { label: 'Ingreso',             icon: '💰', card: 'optional', person: false, category: false, flow: 'in' },
 };
-const TYPE_ORDER = ['gasto', 'prestado', 'debo', 'cobro', 'pago', 'ingreso'];
+const TYPE_ORDER = ['gasto', 'prestado', 'debo', 'meprestaron', 'preste', 'cobro', 'pago', 'ingreso'];
 
 const TITLES = {
   nuevo: 'Nuevo movimiento',
@@ -115,6 +117,8 @@ function debtDelta(m) {
     case 'pago': return m.amount;
     case 'debo': return -m.amount;
     case 'cobro': return -m.amount;
+    case 'meprestaron': return -m.amount;
+    case 'preste': return m.amount;
     default: return 0;
   }
 }
@@ -222,6 +226,8 @@ function renderForm() {
   cardField.hidden = !t.card;
   $('#cardLabel').textContent = {
     cobro: '¿A qué cuenta te pagaron? (opcional)',
+    meprestaron: '¿A qué cuenta te depositaron? (opcional)',
+    preste: '¿De qué cuenta salió?',
     ingreso: '¿A qué cuenta entró? (opcional)',
   }[f.type] || '¿Con qué pagaste?';
   $('#cards').innerHTML = db.cards.map((c) => `
@@ -233,6 +239,8 @@ function renderForm() {
   $('[data-field="person"]').hidden = !t.person;
   $('#personLabel').textContent = {
     prestado: '¿Por quién pagaste?',
+    meprestaron: '¿Quién te prestó?',
+    preste: '¿A quién le prestaste?',
     debo: '¿Quién pagó por ti?',
     cobro: '¿Quién te pagó?',
     pago: '¿A quién le pagaste?',
@@ -400,7 +408,7 @@ function movementRow(m, i = 0) {
   const card = cardById(m.cardId);
   // Ruta del "vuelo": de dónde sale el dinero → a dónde va.
   const from = t.flow === 'in' ? (m.person || 'Ingreso') : (card?.name || (m.type === 'debo' ? m.person : 'Sin tarjeta'));
-  const to = t.flow === 'in' ? (card?.name || 'Tu bolsillo') : (m.type === 'pago' ? m.person : (cat?.name || t.label));
+  const to = t.flow === 'in' ? (card?.name || 'Tu bolsillo') : (m.type === 'pago' || m.type === 'preste' ? m.person : (cat?.name || t.label));
   return `
     <button type="button" class="item" data-edit="${esc(m.id)}" style="--i:${i}">
       <span class="bubble">${icon(cat && t.category ? cat.id : m.type)}${card ? `<span class="dot" style="background:${esc(card.color)}"></span>` : ''}</span>
@@ -447,7 +455,7 @@ function renderDebts() {
     <div class="stat"><div class="k">Debes</div><div class="v out">${fmt(iOwe)}</div></div>`;
 
   if (!people.length) {
-    $('#debtList').innerHTML = `<div class="empty">${icon('tab_deudas')}<b>Sin deudas</b>Usa “Pagué por alguien” o “Alguien pagó por mí” al registrar.</div>`;
+    $('#debtList').innerHTML = `<div class="empty">${icon('tab_deudas')}<b>Sin deudas</b>Registra un préstamo con los botones de arriba, o usa “Pagué por alguien” al registrar un gasto.</div>`;
     return;
   }
 
@@ -649,6 +657,16 @@ function bind() {
     if (edit) {
       if (edit.tagName === 'SUMMARY') return;
       startEdit(edit.dataset.edit);
+      return;
+    }
+    const nd = e.target.closest('[data-newdebt]');
+    if (nd) {
+      resetForm(false);
+      ui.form.type = nd.dataset.newdebt;
+      if (TYPES[ui.form.type].card === 'required') ui.form.cardId = db.lastCardId && cardById(db.lastCardId) ? db.lastCardId : null;
+      setTab('nuevo');
+      replay($(`#types [data-type="${ui.form.type}"]`), 'just');
+      setTimeout(() => $('#amount').focus(), 350);
       return;
     }
     const settle = e.target.closest('[data-settle]');

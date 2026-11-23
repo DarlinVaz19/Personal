@@ -39,3 +39,8 @@
 .lb-row em { font-style: normal; color: var(--muted); font-size: 11px; }
 .lb-row b { font-variant-numeric: tabular-nums; text-align: right; }
 .lb-sign { text-align: right; font-family: var(--serif, Georgia), Georgia, serif; font-style: italic; color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+/* Botones para registrar préstamos */
+.debt-add { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: -4px 0 16px; }
+.debt-add .btn { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; box-shadow: var(--shadow); }
+.debt-add .ic { width: 28px; height: 28px; }
