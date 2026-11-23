@@ -18,15 +18,18 @@
   // Aplica el tema guardado antes de pintar, para que no parpadee.
   try {
     var t = (JSON.parse(localStorage.getItem('finanzas.v1')) || {}).theme || 'auto';
-    if (t === 'auto') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'medianoche' : 'menta';
+    if (t === 'auto') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'nocheestrellada' : 'cielo';
     document.documentElement.dataset.theme = t;
+    if (t === 'cielo' || t === 'nocheestrellada') document.documentElement.dataset.style = 'journal';
   } catch (e) {}
 </script>
 </head>
 <body>
+<div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="photo-bg" aria-hidden="true"></div>
 <header class="topbar">
   <h1 id="title">Nuevo movimiento</h1>
+  <p class="subtitle" id="subtitle"></p>
 </header>
 
 <main>

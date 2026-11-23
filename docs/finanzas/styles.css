@@ -365,3 +365,127 @@ h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: v
   transition: opacity .2s, transform .2s; z-index: 20; max-width: calc(100% - 32px); text-align: center;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+
+/* =========================================================
+   Estilo "journal": temas Cielo y Noche estrellada
+   Nubes y estrellas dibujadas en SVG (funcionan sin internet).
+   ========================================================= */
+[data-theme="cielo"] {
+  --bg: #efe6f3;
+  --glow-1: rgba(255, 196, 170, .60);
+  --glow-2: rgba(166, 196, 245, .55);
+  --surface: rgba(255, 255, 255, .62);
+  --surface-solid: #fbf7fc;
+  --surface-2: rgba(236, 228, 246, .9);
+  --text: #3a3358;
+  --muted: #776f97;
+  --border: rgba(108, 95, 184, .18);
+  --accent: #6c5fb8;
+  --accent-2: #b46e9f;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(214, 204, 245, .75);
+  --out: #b23a5e;
+  --in: #2f7d62;
+  --warn: #a05a1c;
+  --shadow: 0 8px 28px rgba(108, 95, 184, .14);
+  --stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Ccircle cx='86' cy='246' r='1' fill='%23f6cf9a'/%3E%3Ccircle cx='170' cy='16' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='97' cy='153' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='13' cy='26' r='1.5' fill='%23f6cf9a'/%3E%3Ccircle cx='21' cy='65' r='0.8' fill='%23f6cf9a'/%3E%3Ccircle cx='19' cy='215' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='165' cy='164' r='0.8' fill='%23f6cf9a'/%3E%3Ccircle cx='16' cy='253' r='1' fill='%23ffffff'/%3E%3Ccircle cx='146' cy='223' r='1' fill='%23fff3d6'/%3E%3Ccircle cx='111' cy='40' r='0.8' fill='%23fff3d6'/%3E%3Ccircle cx='147' cy='212' r='1' fill='%23ffffff'/%3E%3Ccircle cx='152' cy='150' r='1' fill='%23fff3d6'/%3E%3Ccircle cx='28' cy='144' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='162' cy='56' r='1.5' fill='%23f6cf9a'/%3E%3Ccircle cx='202' cy='84' r='1.5' fill='%23f6cf9a'/%3E%3Ccircle cx='96' cy='80' r='1' fill='%23ffffff'/%3E%3Ccircle cx='182' cy='203' r='1' fill='%23ffffff'/%3E%3Ccircle cx='151' cy='80' r='1.5' fill='%23fff3d6'/%3E%3Ccircle cx='190' cy='118' r='1.2' fill='%23ffffff'/%3E%3Ccircle cx='34' cy='135' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='197' cy='91' r='1' fill='%23f6cf9a'/%3E%3Ccircle cx='111' cy='14' r='0.8' fill='%23fff3d6'/%3E%3Cpath d='M99 183 Q100.68 187.32 105 189 Q100.68 190.68 99 195 Q97.32 190.68 93 189 Q97.32 187.32 99 183Z' fill='%23f6cf9a'/%3E%3Cpath d='M160 208 Q162.24 213.76 168 216 Q162.24 218.24 160 224 Q157.76 218.24 152 216 Q157.76 213.76 160 208Z' fill='%23ffffff'/%3E%3Cpath d='M227 29 Q228.68 33.32 233 35 Q228.68 36.68 227 41 Q225.32 36.68 221 35 Q225.32 33.32 227 29Z' fill='%23f6cf9a'/%3E%3Cpath d='M190 178 Q191.12 180.88 194 182 Q191.12 183.12 190 186 Q188.88 183.12 186 182 Q188.88 180.88 190 178Z' fill='%23ffffff'/%3E%3Cpath d='M199 185 Q200.68 189.32 205 191 Q200.68 192.68 199 197 Q197.32 192.68 193 191 Q197.32 189.32 199 185Z' fill='%23f6cf9a'/%3E%3Cpath d='M84 187 Q86.24 192.76 92 195 Q86.24 197.24 84 203 Q81.76 197.24 76 195 Q81.76 192.76 84 187Z' fill='%23fff3d6'/%3E%3Cpath d='M17 124 Q18.68 128.32 23 130 Q18.68 131.68 17 136 Q15.32 131.68 11 130 Q15.32 128.32 17 124Z' fill='%23ffffff'/%3E%3Cpath d='M168 33 Q170.24 38.76 176 41 Q170.24 43.24 168 49 Q165.76 43.24 160 41 Q165.76 38.76 168 33Z' fill='%23ffffff'/%3E%3Cpath d='M67 202 Q68.68 206.32 73 208 Q68.68 209.68 67 214 Q65.32 209.68 61 208 Q65.32 206.32 67 202Z' fill='%23ffffff'/%3E%3C/svg%3E");
+  --twinkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Ccircle cx='130' cy='207' r='1.5' fill='%23ffe7b8'/%3E%3Ccircle cx='45' cy='89' r='1.5' fill='%23ffe7b8'/%3E%3Ccircle cx='285' cy='146' r='1' fill='%23ffe7b8'/%3E%3Ccircle cx='285' cy='146' r='1.5' fill='%23ffe7b8'/%3E%3Ccircle cx='198' cy='122' r='1' fill='%23ffffff'/%3E%3Ccircle cx='94' cy='81' r='1' fill='%23ffffff'/%3E%3Cpath d='M18 255 Q19.4 258.6 23 260 Q19.4 261.4 18 265 Q16.6 261.4 13 260 Q16.6 258.6 18 255Z' fill='%23ffe7b8'/%3E%3Cpath d='M156 9 Q157.4 12.6 161 14 Q157.4 15.4 156 19 Q154.6 15.4 151 14 Q154.6 12.6 156 9Z' fill='%23ffe7b8'/%3E%3Cpath d='M285 195 Q286.68 199.32 291 201 Q286.68 202.68 285 207 Q283.32 202.68 279 201 Q283.32 199.32 285 195Z' fill='%23ffffff'/%3E%3Cpath d='M275 324 Q276.12 326.88 279 328 Q276.12 329.12 275 332 Q273.88 329.12 271 328 Q273.88 326.88 275 324Z' fill='%23ffe7b8'/%3E%3Cpath d='M298 204 Q300.24 209.76 306 212 Q300.24 214.24 298 220 Q295.76 214.24 290 212 Q295.76 209.76 298 204Z' fill='%23ffe7b8'/%3E%3C/svg%3E");
+  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 250 130'%3E%3Cg fill='%23ffffff' fill-opacity='0.85'%3E%3Ccircle cx='60' cy='70' r='38'/%3E%3Ccircle cx='110' cy='50' r='50'/%3E%3Ccircle cx='170' cy='62' r='42'/%3E%3Ccircle cx='215' cy='80' r='30'/%3E%3Ccircle cx='30' cy='90' r='26'/%3E%3Ccircle cx='140' cy='92' r='40'/%3E%3Ccircle cx='90' cy='95' r='34'/%3E%3Ccircle cx='190' cy='98' r='28'/%3E%3Crect x='30' y='90' width='185' height='38' rx='19'/%3E%3C/g%3E%3C/svg%3E");
+  color-scheme: light;
+}
+[data-theme="nocheestrellada"] {
+  --bg: #131936;
+  --glow-1: rgba(160, 140, 255, .28);
+  --glow-2: rgba(246, 201, 154, .16);
+  --surface: rgba(32, 39, 82, .62);
+  --surface-solid: #1d2350;
+  --surface-2: rgba(44, 52, 104, .9);
+  --text: #eef0ff;
+  --muted: #a9b0da;
+  --border: rgba(217, 204, 255, .16);
+  --accent: #f3c894;
+  --accent-2: #c9b2ff;
+  --accent-contrast: #1a1838;
+  --accent-soft: rgba(243, 200, 148, .18);
+  --out: #ff8fa3;
+  --in: #7fe0b0;
+  --warn: #f6c99a;
+  --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+  --stars: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Ccircle cx='104' cy='30' r='1.5' fill='%23d9ccff'/%3E%3Ccircle cx='19' cy='52' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='116' cy='45' r='0.8' fill='%23f6c99a'/%3E%3Ccircle cx='157' cy='17' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='149' cy='42' r='0.8' fill='%23f6c99a'/%3E%3Ccircle cx='161' cy='10' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='161' cy='100' r='1' fill='%23f6c99a'/%3E%3Ccircle cx='248' cy='92' r='1.2' fill='%23d9ccff'/%3E%3Ccircle cx='35' cy='33' r='1.5' fill='%23d9ccff'/%3E%3Ccircle cx='126' cy='127' r='1.2' fill='%23ffffff'/%3E%3Ccircle cx='40' cy='30' r='1.2' fill='%23f6c99a'/%3E%3Ccircle cx='126' cy='216' r='1' fill='%23ffffff'/%3E%3Ccircle cx='56' cy='247' r='1.2' fill='%23fff1cf'/%3E%3Ccircle cx='180' cy='143' r='0.8' fill='%23f6c99a'/%3E%3Ccircle cx='254' cy='168' r='0.8' fill='%23f6c99a'/%3E%3Ccircle cx='136' cy='97' r='1' fill='%23f6c99a'/%3E%3Ccircle cx='201' cy='61' r='1.2' fill='%23fff1cf'/%3E%3Ccircle cx='160' cy='211' r='1' fill='%23fff1cf'/%3E%3Ccircle cx='213' cy='106' r='1' fill='%23fff1cf'/%3E%3Ccircle cx='136' cy='130' r='1.2' fill='%23ffffff'/%3E%3Ccircle cx='11' cy='206' r='1.2' fill='%23d9ccff'/%3E%3Ccircle cx='70' cy='53' r='1.2' fill='%23d9ccff'/%3E%3Ccircle cx='210' cy='243' r='1.2' fill='%23f6c99a'/%3E%3Ccircle cx='24' cy='60' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='124' cy='54' r='1.2' fill='%23fff1cf'/%3E%3Ccircle cx='127' cy='163' r='0.8' fill='%23d9ccff'/%3E%3Ccircle cx='236' cy='171' r='1.2' fill='%23ffffff'/%3E%3Ccircle cx='217' cy='173' r='0.8' fill='%23d9ccff'/%3E%3Ccircle cx='204' cy='186' r='1' fill='%23d9ccff'/%3E%3Ccircle cx='231' cy='49' r='1.5' fill='%23f6c99a'/%3E%3Ccircle cx='26' cy='209' r='1.5' fill='%23d9ccff'/%3E%3Ccircle cx='106' cy='194' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='47' cy='36' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='155' cy='235' r='1.5' fill='%23fff1cf'/%3E%3Ccircle cx='160' cy='215' r='1.5' fill='%23f6c99a'/%3E%3Ccircle cx='43' cy='144' r='1' fill='%23ffffff'/%3E%3Ccircle cx='7' cy='208' r='0.8' fill='%23fff1cf'/%3E%3Ccircle cx='115' cy='256' r='1' fill='%23fff1cf'/%3E%3Ccircle cx='11' cy='68' r='1' fill='%23f6c99a'/%3E%3Ccircle cx='132' cy='65' r='1.2' fill='%23f6c99a'/%3E%3Cpath d='M151 114 Q152.4 117.6 156 119 Q152.4 120.4 151 124 Q149.6 120.4 146 119 Q149.6 117.6 151 114Z' fill='%23ffffff'/%3E%3Cpath d='M244 195 Q245.68 199.32 250 201 Q245.68 202.68 244 207 Q242.32 202.68 238 201 Q242.32 199.32 244 195Z' fill='%23d9ccff'/%3E%3Cpath d='M181 153 Q183.24 158.76 189 161 Q183.24 163.24 181 169 Q178.76 163.24 173 161 Q178.76 158.76 181 153Z' fill='%23fff1cf'/%3E%3Cpath d='M148 46 Q149.12 48.88 152 50 Q149.12 51.12 148 54 Q146.88 51.12 144 50 Q146.88 48.88 148 46Z' fill='%23d9ccff'/%3E%3Cpath d='M210 54 Q211.12 56.88 214 58 Q211.12 59.12 210 62 Q208.88 59.12 206 58 Q208.88 56.88 210 54Z' fill='%23fff1cf'/%3E%3Cpath d='M56 40 Q58.24 45.76 64 48 Q58.24 50.24 56 56 Q53.76 50.24 48 48 Q53.76 45.76 56 40Z' fill='%23ffffff'/%3E%3Cpath d='M154 21 Q155.68 25.32 160 27 Q155.68 28.68 154 33 Q152.32 28.68 148 27 Q152.32 25.32 154 21Z' fill='%23d9ccff'/%3E%3Cpath d='M212 206 Q213.12 208.88 216 210 Q213.12 211.12 212 214 Q210.88 211.12 208 210 Q210.88 208.88 212 206Z' fill='%23ffffff'/%3E%3Cpath d='M75 54 Q76.68 58.32 81 60 Q76.68 61.68 75 66 Q73.32 61.68 69 60 Q73.32 58.32 75 54Z' fill='%23ffffff'/%3E%3Cpath d='M209 29 Q211.24 34.76 217 37 Q211.24 39.24 209 45 Q206.76 39.24 201 37 Q206.76 34.76 209 29Z' fill='%23ffffff'/%3E%3C/svg%3E");
+  --twinkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Ccircle cx='36' cy='230' r='1.2' fill='%23fff6dc'/%3E%3Ccircle cx='145' cy='235' r='1.5' fill='%23fff6dc'/%3E%3Ccircle cx='271' cy='136' r='1' fill='%23ffffff'/%3E%3Ccircle cx='74' cy='217' r='0.8' fill='%23ffffff'/%3E%3Ccircle cx='230' cy='165' r='0.8' fill='%23fff6dc'/%3E%3Ccircle cx='223' cy='41' r='1' fill='%23ffffff'/%3E%3Ccircle cx='66' cy='83' r='1.2' fill='%23fff6dc'/%3E%3Ccircle cx='133' cy='74' r='1.5' fill='%23fff6dc'/%3E%3Ccircle cx='52' cy='207' r='1.5' fill='%23fff6dc'/%3E%3Ccircle cx='118' cy='86' r='1.5' fill='%23ffffff'/%3E%3Cpath d='M185 222 Q186.4 225.6 190 227 Q186.4 228.4 185 232 Q183.6 228.4 180 227 Q183.6 225.6 185 222Z' fill='%23ffffff'/%3E%3Cpath d='M175 53 Q176.68 57.32 181 59 Q176.68 60.68 175 65 Q173.32 60.68 169 59 Q173.32 57.32 175 53Z' fill='%23fff6dc'/%3E%3Cpath d='M185 287 Q187.24 292.76 193 295 Q187.24 297.24 185 303 Q182.76 297.24 177 295 Q182.76 292.76 185 287Z' fill='%23ffffff'/%3E%3Cpath d='M21 202 Q22.68 206.32 27 208 Q22.68 209.68 21 214 Q19.32 209.68 15 208 Q19.32 206.32 21 202Z' fill='%23ffffff'/%3E%3Cpath d='M274 40 Q275.12 42.88 278 44 Q275.12 45.12 274 48 Q272.88 45.12 270 44 Q272.88 42.88 274 40Z' fill='%23fff6dc'/%3E%3Cpath d='M65 49 Q66.68 53.32 71 55 Q66.68 56.68 65 61 Q63.32 56.68 59 55 Q63.32 53.32 65 49Z' fill='%23ffffff'/%3E%3C/svg%3E");
+  --cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 250 130'%3E%3Cg fill='%23c9c4ff' fill-opacity='0.1'%3E%3Ccircle cx='60' cy='70' r='38'/%3E%3Ccircle cx='110' cy='50' r='50'/%3E%3Ccircle cx='170' cy='62' r='42'/%3E%3Ccircle cx='215' cy='80' r='30'/%3E%3Ccircle cx='30' cy='90' r='26'/%3E%3Ccircle cx='140' cy='92' r='40'/%3E%3Ccircle cx='90' cy='95' r='34'/%3E%3Ccircle cx='190' cy='98' r='28'/%3E%3Crect x='30' y='90' width='185' height='38' rx='19'/%3E%3C/g%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+[data-theme="cielo"] body {
+  background:
+    radial-gradient(70% 45% at 0% 0%, var(--glow-1), transparent 70%),
+    radial-gradient(60% 40% at 100% 30%, var(--glow-2), transparent 70%),
+    linear-gradient(180deg, #f8dccf 0%, #ece0f3 45%, #d9e4f6 100%);
+}
+[data-theme="nocheestrellada"] body {
+  background:
+    radial-gradient(70% 45% at 0% 0%, var(--glow-1), transparent 70%),
+    radial-gradient(60% 40% at 100% 70%, var(--glow-2), transparent 70%),
+    linear-gradient(180deg, #0f1430 0%, #1b2150 60%, #2a2763 100%);
+}
+
+/* Capa de cielo: estrellas + nubes */
+.sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: none; overflow: hidden; }
+[data-style="journal"] .sky { display: block; }
+.sky::before, .sky::after { content: ""; position: absolute; inset: 0; }
+.sky::before { background-image: var(--stars); background-size: 260px 260px; }
+.sky::after { background-image: var(--twinkle); background-size: 340px 340px; background-position: 70px 40px; animation: twinkle 3.5s ease-in-out infinite alternate; }
+.sky i { position: absolute; display: block; background: var(--cloud) center / contain no-repeat; }
+.sky i:nth-child(1) { width: 260px; height: 135px; right: -70px; top: 70px; }
+.sky i:nth-child(2) { width: 340px; height: 175px; left: -110px; bottom: 60px; }
+.sky i:nth-child(3) { width: 200px; height: 105px; right: -40px; bottom: 260px; opacity: .8; }
+@keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sky::after { animation: none; } }
+
+/* Tipografía de diario */
+[data-style="journal"] { --serif: ui-serif, "New York", "Iowan Old Style", Georgia, serif; }
+[data-style="journal"] .topbar h1 { font-family: var(--serif); font-weight: 500; font-size: 30px; letter-spacing: -0.01em; }
+.subtitle { display: none; }
+[data-style="journal"] .subtitle { display: block; margin: 2px 0 0; font-family: var(--serif); font-style: italic; color: var(--muted); font-size: 15px; }
+[data-style="journal"] h2 {
+  font-family: var(--serif); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: 0;
+  font-size: 19px; color: var(--accent); display: flex; align-items: center; gap: 10px;
+}
+[data-style="journal"] h2::before { content: "✦"; font-style: normal; font-size: 14px; }
+[data-style="journal"] h2::after { content: ""; flex: 1; border-top: 1px dashed var(--border); }
+[data-style="journal"] .label,
+[data-style="journal"] .day { font-family: var(--serif); font-style: italic; font-size: 14px; }
+[data-style="journal"] .month-nav strong { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+[data-style="journal"] .amount input,
+[data-style="journal"] .amount .currency,
+[data-style="journal"] .stat .v,
+[data-style="journal"] .hero .v { font-family: var(--serif); font-weight: 500; }
+
+/* Tarjetas como de vidrio */
+[data-style="journal"] .list,
+[data-style="journal"] .stat,
+[data-style="journal"] .bars,
+[data-style="journal"] .amount,
+[data-style="journal"] .type,
+[data-style="journal"] .chip,
+[data-style="journal"] .btn:not(.primary),
+[data-style="journal"] .theme-opt,
+[data-style="journal"] .field input,
+[data-style="journal"] select {
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+[data-style="journal"] .list, [data-style="journal"] .stat, [data-style="journal"] .bars { border-radius: 22px; }
+[data-style="journal"] .topbar { background: color-mix(in srgb, var(--surface-solid) 45%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+
+/* Tarjeta de inicio con estrellas y luna */
+[data-style="journal"] .hero:not(.photo) {
+  background: var(--twinkle), var(--stars), linear-gradient(135deg, var(--accent), var(--accent-2));
+  background-size: 340px, 260px, auto;
+}
+[data-style="journal"] .hero::before { display: none; }
+[data-style="journal"] .hero::after {
+  content: "☾"; background: none; width: auto; height: auto; border-radius: 0;
+  top: 10px; right: 18px; font-size: 34px; opacity: .9; font-family: var(--serif);
+}
+[data-style="journal"] .hero .k { font-family: var(--serif); font-style: italic; font-size: 16px; }

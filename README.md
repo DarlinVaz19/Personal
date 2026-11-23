@@ -11,7 +11,7 @@ Web app instalable en el celular (PWA) para registrar gastos en MXN.
 - **Deudas:** saldo por persona, con un botón para registrar cuando te pagan o pagas.
 - **Resumen mensual:** tu gasto personal, lo que salió de cada tarjeta y el gasto por categoría.
 - **Privacidad:** los datos se guardan **solo en el teléfono** (localStorage). Nada se sube al repo ni a ningún servidor.
-- **Temas:** 8 temas a elegir en *Ajustes* (Menta, Sakura, Lavanda, Arena, Océano, Medianoche, Grafito o Automático).
+- **Temas:** estilo diario con nubes y estrellas: *Cielo* (atardecer pastel) y *Noche estrellada*. *Automático* (el predeterminado) usa Cielo de día y Noche estrellada en modo oscuro. También hay Menta, Sakura, Lavanda, Arena, Océano, Medianoche y Grafito.
 - **Foto:** en *Ajustes → Foto* eliges una imagen de tu carrete para el fondo y/o la tarjeta de inicio. Se guarda solo en el teléfono.
 - **Respaldo:** en *Ajustes → Exportar respaldo (.json)*. Se importa en el mismo lugar. También se puede exportar a CSV para Excel.
 

@@ -47,7 +47,9 @@ const TYPES = {
 const TYPE_ORDER = ['gasto', 'prestado', 'debo', 'cobro', 'pago', 'ingreso'];
 
 const THEMES = [
-  { id: 'auto', name: 'Automático', swatch: 'linear-gradient(135deg,#0f766e 0 50%,#a78bfa 50% 100%)' },
+  { id: 'auto', name: 'Automático', swatch: 'linear-gradient(135deg,#f8dccf,#d9e4f6 50%,#1b2150 50%,#2a2763)', style: 'journal' },
+  { id: 'cielo', name: 'Cielo', swatch: 'radial-gradient(circle at 75% 30%,#fff 0 3px,transparent 4px),radial-gradient(circle at 30% 65%,#fff 0 2px,transparent 3px),linear-gradient(180deg,#f8dccf,#ece0f3 50%,#d9e4f6)', style: 'journal' },
+  { id: 'nocheestrellada', name: 'Noche estrellada', swatch: 'radial-gradient(circle at 70% 30%,#f3c894 0 3px,transparent 4px),radial-gradient(circle at 30% 60%,#fff 0 2px,transparent 3px),radial-gradient(circle at 50% 80%,#d9ccff 0 1.5px,transparent 2.5px),linear-gradient(180deg,#0f1430,#2a2763)', style: 'journal' },
   { id: 'menta', name: 'Menta', swatch: 'linear-gradient(135deg,#0f766e,#34d399)' },
   { id: 'sakura', name: 'Sakura', swatch: 'linear-gradient(135deg,#c93d68,#f9a8c0)' },
   { id: 'lavanda', name: 'Lavanda', swatch: 'linear-gradient(135deg,#6a49c9,#c4a7f5)' },
@@ -212,8 +214,11 @@ function sortedMovements(list) {
 const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 function applyTheme() {
   let t = db.theme || 'auto';
-  if (t === 'auto') t = darkQuery.matches ? 'medianoche' : 'menta';
+  if (t === 'auto') t = darkQuery.matches ? 'nocheestrellada' : 'cielo';
   document.documentElement.dataset.theme = t;
+  const journal = t === 'cielo' || t === 'nocheestrellada';
+  if (journal) document.documentElement.dataset.style = 'journal';
+  else delete document.documentElement.dataset.style;
   const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
@@ -291,6 +296,7 @@ function setTab(tab) {
     else b.removeAttribute('aria-current');
   }
   $('#title').textContent = tab === 'nuevo' && ui.editingId ? 'Editar movimiento' : TITLES[tab];
+  $('#subtitle').textContent = `${new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })} ☁︎ ✦`;
   render();
   window.scrollTo(0, 0);
 }
