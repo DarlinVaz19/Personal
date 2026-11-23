@@ -37,6 +37,10 @@ function stats() {
   out.habitsDone = doneToday.length;
 
   out.mood = read('diario.v1')?.entries?.[today]?.mood || null;
+
+  const nights = read('sueno.v1')?.nights || {};
+  const lastKey = Object.keys(nights).sort().pop();
+  out.sleep = lastKey && daysBetween(lastKey, today) <= 1 ? nights[lastKey] : null;
   return out;
 }
 
@@ -81,10 +85,11 @@ function renderTiles(s) {
     { href: 'gatos/', icon: 'mod_gatos', name: 'Gatos', sub: gatosSub },
     { href: 'habitos/', icon: 'mod_habitos', name: 'Hábitos', sub: s.habitsTotal ? `Hoy: ${s.habitsDone} de ${s.habitsTotal}` : 'Crea tus hábitos' },
     { href: 'diario/', icon: 'mod_diario', name: 'Diario', sub: s.mood ? `Hoy: ${MOODS[s.mood]}` : '¿Cómo está tu cielo hoy?' },
-    { href: 'ajustes/', icon: 'tab_ajustes', name: 'Ajustes', sub: 'Tema, foto y respaldo' },
+    { href: 'sueno/', icon: 'mod_sueno', name: 'Sueño', sub: s.sleep ? `Anoche: ${Math.floor(s.sleep.minutes / 60)} h ${Math.round(s.sleep.minutes % 60)} min` : '¿Cómo dormiste?' },
+    { href: 'ajustes/', icon: 'tab_ajustes', name: 'Ajustes', sub: 'Tema, foto y respaldo', wide: true },
   ];
   $('#tiles').innerHTML = tiles.map((t, i) => `
-    <a class="tile" href="${t.href}" data-nav style="--i:${i}">
+    <a class="tile ${t.wide ? 'wide' : ''}" href="${t.href}" data-nav style="--i:${i}">
       <span class="tile-ic">${icon(t.icon)}</span>
       <b>${esc(t.name)}</b>
       <small>${esc(t.sub)}</small>

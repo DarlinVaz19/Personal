@@ -1,6 +1,6 @@
 // Service worker de "Mi cielo": permite abrir todas las secciones sin internet.
 // Sube CACHE cuando cambies archivos para que el teléfono descargue la versión nueva.
-const CACHE = 'mi-cielo-v3';
+const CACHE = 'mi-cielo-v4';
 const ASSETS = [
   './', 'index.html', 'hub.js', 'hub.css', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
@@ -10,6 +10,7 @@ const ASSETS = [
   'gatos/', 'gatos/index.html', 'gatos/gatos.js', 'gatos/gatos.css',
   'habitos/', 'habitos/index.html', 'habitos/habitos.js', 'habitos/habitos.css',
   'diario/', 'diario/index.html', 'diario/diario.js', 'diario/diario.css',
+  'sueno/', 'sueno/index.html', 'sueno/sueno.js', 'sueno/sueno.css',
   'ajustes/', 'ajustes/index.html', 'ajustes/ajustes.js',
 ];
 

@@ -11,7 +11,7 @@ const ROOT = document.documentElement.dataset.root || './';
 const SETTINGS_KEY = 'cielo.ajustes';
 const PHOTO_KEY = 'cielo.foto';
 /* Claves que entran en el respaldo general. */
-const DATA_KEYS = ['finanzas.v1', 'ideas.v1', 'gatos.v1', 'habitos.v1', 'diario.v1', SETTINGS_KEY];
+const DATA_KEYS = ['finanzas.v1', 'ideas.v1', 'gatos.v1', 'habitos.v1', 'diario.v1', 'sueno.v1', SETTINGS_KEY];
 
 /* ---------------- Utilidades ---------------- */
 

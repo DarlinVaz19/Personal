@@ -1,0 +1,53 @@
+/* ===== Sueño ===== */
+:root { --st-deep: #5b4fb0; --st-core: #9fb6f5; --st-rem: #ef8fae; --st-awake: #f5bf5f; }
+
+.sleep-hero .v { font-size: 32px; }
+.sleep-hero .meta { gap: 10px; }
+.stage-bar { position: relative; z-index: 1; display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 12px; background: rgba(0, 0, 0, .15); }
+.stage-bar span { height: 100%; animation: grow .8s ease-out both; transform-origin: left; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+.stage-legend { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 12.5px; opacity: .95; }
+.stage-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.st-deep { background: var(--st-deep); }
+.st-core { background: var(--st-core); }
+.st-rem { background: var(--st-rem); }
+.st-awake { background: var(--st-awake); }
+
+.sleep-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sleep-actions .btn { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14.5px; box-shadow: var(--shadow); padding: 12px 8px; }
+.sleep-actions .ic { width: 28px; height: 28px; }
+
+/* Gráfica de la semana */
+.bars7 { --plot: 1.4px; position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; padding-top: 22px; }
+.goal-line { position: absolute; left: 0; right: 0; bottom: calc(22px + var(--goal) * var(--plot)); border-top: 2px dashed var(--accent); opacity: .6; pointer-events: none; }
+.goal-line em { position: absolute; right: 0; top: -18px; font-size: 11px; font-style: normal; color: var(--accent); font-weight: 700; }
+.b7 { position: relative; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.b7-bar {
+  width: 70%; height: calc(var(--h) * var(--plot)); min-height: 4px; border-radius: 10px 10px 4px 4px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent)); position: relative;
+  animation: barUp .7s cubic-bezier(.3, 1.3, .5, 1) both; animation-delay: calc(var(--i) * 60ms); transform-origin: bottom;
+}
+.b7:not(:has(.b7-val:not(:empty))) .b7-bar { background: var(--surface-2); }
+.b7-bar i { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); color: #fff; font-style: normal; font-size: 13px; }
+@keyframes barUp { from { transform: scaleY(0); } to { transform: none; } }
+.b7-val { font-size: 11px; font-weight: 700; color: var(--muted); height: 16px; }
+.b7 small { font-size: 11.5px; color: var(--muted); margin-top: 6px; height: 16px; text-transform: capitalize; }
+.goal-stat { text-align: left; font: inherit; color: inherit; }
+
+.bubble .src { position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-solid); display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.bubble .src .ic { width: 18px; height: 18px; }
+
+/* Hojas */
+.steps { padding-left: 20px; margin: 0 0 8px; line-height: 1.5; }
+.manual-paste { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.manual-paste summary { cursor: pointer; color: var(--accent); font-weight: 600; padding: 4px 0; }
+.how ol { padding-left: 20px; line-height: 1.5; }
+.how li { margin-bottom: 6px; }
+.how code { background: var(--surface-2); border-radius: 6px; padding: 1px 5px; font-size: 13px; }
+.dur { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 700; margin: -4px 0 12px; }
+.dur .ic.mini { width: 26px; height: 26px; }
+.quality { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.quality button { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; padding: 8px 2px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11.5px; color: var(--muted); }
+.quality .ic { width: 34px; height: 34px; }
+.quality button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--text); font-weight: 700; }
+.quality button.just .ic { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1); }

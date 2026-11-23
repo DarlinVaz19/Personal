@@ -35,6 +35,7 @@ function renderBackup() {
   const g = p.data['gatos.v1']; if (g?.cats?.length) counts.push(`${g.cats.length} gatos`);
   const h = p.data['habitos.v1']; if (h?.habits?.length) counts.push(`${h.habits.length} hábitos`);
   const d = p.data['diario.v1']; if (d?.entries && Object.keys(d.entries).length) counts.push(`${Object.keys(d.entries).length} páginas de diario`);
+  const sl = p.data['sueno.v1']; if (sl?.nights && Object.keys(sl.nights).length) counts.push(`${Object.keys(sl.nights).length} noches de sueño`);
   const last = settings.data.lastBackup;
   $('#backupInfo').textContent = `${counts.length ? counts.join(', ') + '. ' : 'Aún no hay datos. '}` +
     (last ? `Último respaldo: ${new Date(last).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}.` : 'Aún no has exportado un respaldo.');

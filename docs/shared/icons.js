@@ -172,6 +172,19 @@ const ICONS = {
     <circle class="s" cx="15" cy="10" r=".9"/><circle class="s" cx="16" cy="21" r=".9"/>
     <path class="h o" d="M21 28v3.4l1.6-1.2 1.6 1.2V28"/>`,
 
+  mod_sueno: () => `
+    <path class="s o" d="M21 3.5a6.6 6.6 0 1 0 7 9.7 5.4 5.4 0 0 1-7-9.7z"/>
+    <path class="f o" d="M5 27h19.5a5 5 0 0 0 .4-10 7.2 7.2 0 0 0-13.9-1.4A5.8 5.8 0 0 0 5 27z"/>
+    <path class="l" d="M10.6 21.6q1.3 1.2 2.6 0M16.4 21.6q1.3 1.2 2.6 0"/>
+    <path class="l" d="M5 5h3.6L5 8.6h3.6M10.5 10.5h2.4l-2.4 2.4h2.4"/>`,
+  reloj: () => `
+    <rect class="a o" x="11" y="2.5" width="10" height="5.5" rx="1.6"/>
+    <rect class="a o" x="11" y="24" width="10" height="5.5" rx="1.6"/>
+    <rect class="f o" x="7.5" y="6.5" width="17" height="19" rx="5.2"/>
+    <path class="s o" d="M17.8 11.2a4.6 4.6 0 1 0 3.6 7.2 3.8 3.8 0 0 1-3.6-7.2z"/>
+    <path class="l" d="M24.5 13.5h1.4"/>
+    <circle class="s" cx="11.5" cy="12" r=".9"/>`,
+
   /* ---- Estados de ánimo (cielo) ---- */
   mood_radiante: () => `
     <path class="l" d="M16 2.5v3.6M16 25.9v3.6M2.5 16h3.6M25.9 16h3.6M6.5 6.5l2.6 2.6M22.9 22.9l2.6 2.6M6.5 25.5l2.6-2.6M22.9 9.1l2.6-2.6"/>
