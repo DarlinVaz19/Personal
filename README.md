@@ -16,9 +16,10 @@ Se abre en `https://darlinvaz19.github.io/Personal/` y se instala desde Safari c
 | **Ideas** | Tablero de notas adhesivas con colores, etiquetas, favoritas y "¡Hecho!". |
 | **Gatos** | Pasaporte felino por gato, salud y veterinario (con próxima fecha), peso con gráfica y compras (se pueden registrar también en Finanzas). |
 | **Hábitos** | Marca tus hábitos del día, rachas, semana a la vista y pista de despegue. |
-| **Diario** | Nota del día y estado de ánimo con iconos de cielo, calendario del mes. |
+| **Mi día** | Ánimo de cielo, emociones y actividades (selección múltiple), energía, gratitud, lo mejor del día, pregunta del día y notas; se guarda solo. Muestra racha, lo que te hace bien, emociones del mes, un recuerdo y el calendario. |
+| **Compras** | Lista por categorías (súper, farmacia, casa, ropa, regalos, gatos, belleza), agregado rápido, total estimado y paso a Finanzas. |
 | **Sueño** | Horas, fases (profundo, núcleo, REM), siestas, calificación 0–100 (duración, eficiencia, profundo, REM, constancia), consejos personalizados y datos curiosos; semana con meta. Se registra a mano o se importa del Apple Watch con un atajo de iOS que copia las muestras de *Análisis del sueño* (instrucciones dentro de la app). |
-| **Ajustes** | Tema (Cielo, Noche estrellada y más), foto de fondo y respaldo de todo en un solo `.json`. |
+| **Ajustes** (botón arriba en Inicio) | Tema (Cielo, Noche estrellada y más), foto de fondo y respaldo de todo en un solo `.json`. |
 
 ### Estructura
 
@@ -27,7 +28,7 @@ docs/
   index.html, hub.js, hub.css     pantalla de inicio
   sw.js, manifest.webmanifest     app instalable y sin internet
   shared/                         estilos, iconos, temas, efectos y jets compartidos
-  finanzas/ ideas/ gatos/ habitos/ diario/ sueno/ ajustes/
+  finanzas/ ideas/ gatos/ habitos/ diario/ (Mi día) sueno/ compras/ ajustes/
 ```
 
 ### Publicar cambios

@@ -34,7 +34,8 @@ function renderBackup() {
   const i = p.data['ideas.v1']; if (i?.notes?.length) counts.push(`${i.notes.length} ideas`);
   const g = p.data['gatos.v1']; if (g?.cats?.length) counts.push(`${g.cats.length} gatos`);
   const h = p.data['habitos.v1']; if (h?.habits?.length) counts.push(`${h.habits.length} hábitos`);
-  const d = p.data['diario.v1']; if (d?.entries && Object.keys(d.entries).length) counts.push(`${Object.keys(d.entries).length} páginas de diario`);
+  const d = p.data['diario.v1']; if (d?.entries && Object.keys(d.entries).length) counts.push(`${Object.keys(d.entries).length} días en Mi día`);
+  const sh = p.data['compras.v1']; if (sh?.items?.length) counts.push(`${sh.items.length} cosas en la lista de compras`);
   const sl = p.data['sueno.v1']; if (sl?.nights && Object.keys(sl.nights).length) counts.push(`${Object.keys(sl.nights).length} noches de sueño`);
   const last = settings.data.lastBackup;
   $('#backupInfo').textContent = `${counts.length ? counts.join(', ') + '. ' : 'Aún no hay datos. '}` +

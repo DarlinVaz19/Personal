@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Compras · Mi cielo</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#efe6f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi cielo">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="compras.css">
+<script src="../shared/theme-early.js"></script>
+</head>
+<body class="no-tabbar">
+<header class="topbar">
+  <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
+  <div class="titles">
+    <h1>Lista de compras</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+</header>
+
+<main>
+  <section class="hero shop-hero" id="hero" data-photo-card></section>
+
+  <form class="quick" id="quick" autocomplete="off">
+    <input id="qName" placeholder="Agregar… (ej. leche, regalo para Ana)" enterkeyhint="done" aria-label="Agregar a la lista">
+    <button type="submit" class="quick-add" aria-label="Agregar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  </form>
+  <div class="chips cats" id="qCats"></div>
+
+  <div class="chips filters" id="filters"></div>
+  <div id="list"></div>
+  <div id="cart"></div>
+</main>
+
+<script src="../shared/icons.js"></script>
+<script src="../shared/core.js"></script>
+<script src="compras.js"></script>
+</body>
+</html>

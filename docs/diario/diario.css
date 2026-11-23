@@ -1,42 +1,115 @@
-/* ===== Diario ===== */
-.entry { animation: rise .45s ease-out both; }
-.entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.entry h3 { margin: 2px 0 12px; font-size: 19px; }
-[data-style="journal"] .entry h3 { font-family: var(--serif); font-weight: 500; font-size: 23px; }
-.entry h3::first-letter { text-transform: uppercase; }
+/* ===== Mi día ===== */
+.day-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.day-head > div { text-align: center; display: flex; flex-direction: column; }
+.day-head b { font-size: 22px; text-transform: capitalize; }
+[data-style="journal"] .day-head b { font-family: var(--serif); font-weight: 500; font-size: 26px; }
+.day-head small { color: var(--muted); font-size: 13px; }
+.day-head small::first-letter { text-transform: uppercase; }
+.nav-day { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); font-size: 20px; flex: none; }
+.nav-day:disabled { opacity: .35; }
 
-.moods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.block { margin-bottom: 12px; animation: rise .45s ease-out both; }
+.block h3 { margin: 0 0 10px; font-size: 17px; display: flex; align-items: baseline; gap: 8px; }
+[data-style="journal"] .block h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+.block h3 small { font-family: system-ui, sans-serif; font-style: normal; font-size: 12px; color: var(--muted); font-weight: 400; }
+
+/* Ánimo */
+.moods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mood {
   border: 1px solid var(--border); background: var(--surface-solid); border-radius: 18px; padding: 10px 4px 8px;
   display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; color: var(--muted);
-  transition: transform .15s, background .2s;
 }
 .mood .ic { width: 46px; height: 46px; transition: transform .25s; }
 .mood[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--text); font-weight: 700; }
 .mood[aria-pressed="true"] .ic { transform: scale(1.12) rotate(-4deg); }
 .mood.just .ic { animation: pop .55s cubic-bezier(.3, 1.6, .5, 1); }
-.mood:active { transform: scale(.95); }
 
-/* Hoja rayada */
+/* Emociones */
+.emo .chip { min-height: 40px; padding: 8px 12px; font-size: 14.5px; }
+.emo .chip .dot { background: var(--c); width: 10px; height: 10px; }
+.emo .chip[aria-pressed="true"] { background: color-mix(in srgb, var(--c) 30%, var(--surface-solid)); border-color: var(--c); }
+
+/* Energía */
+.energy { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.energy button { border: 1px solid var(--border); background: var(--surface-solid); border-radius: 14px; padding: 10px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.energy small { font-size: 11px; color: var(--muted); }
+.bat { display: flex; gap: 2px; padding: 3px; border: 2px solid var(--muted); border-radius: 5px; position: relative; }
+.bat::after { content: ""; position: absolute; right: -5px; top: 50%; width: 3px; height: 7px; margin-top: -3.5px; background: var(--muted); border-radius: 0 2px 2px 0; }
+.bat i { width: 5px; height: 12px; border-radius: 1.5px; background: var(--surface-2); }
+.energy button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.energy button[aria-pressed="true"] small { color: var(--text); font-weight: 700; }
+.energy button[aria-pressed="true"] .bat i.on { background: linear-gradient(180deg, #7fe0b0, #3fb37f); }
+.energy button[aria-pressed="true"][data-energy="1"] .bat i.on { background: #f28b82; }
+.energy button[aria-pressed="true"][data-energy="2"] .bat i.on { background: #f5bf5f; }
+.energy button.just { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }
+
+/* Actividades */
+.acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.act {
+  border: 1px solid var(--border); background: var(--surface-solid); border-radius: 16px; padding: 9px 2px 7px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11.5px; color: var(--muted);
+}
+.act .ic { width: 34px; height: 34px; }
+.act[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--text); font-weight: 700; }
+.act.just .ic { animation: wiggle .5s ease-out; }
+
+/* Gratitud y lo mejor */
+.grat { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.grat span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; flex: none; }
+.grat input, .best, .prompt textarea {
+  width: 100%; background: var(--surface-solid); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; min-height: 46px; outline: 0; font: inherit; color: inherit;
+}
+.grat input:focus, .best:focus, .prompt textarea:focus { border-color: var(--accent); }
+.prompt-head { display: flex; justify-content: space-between; align-items: center; }
+.prompt-head h3 { margin: 0; }
+.prompt-head .ic.mini { width: 22px; height: 22px; }
+.prompt .q { font-size: 17px; margin: 8px 0 10px; }
+[data-style="journal"] .prompt .q { font-family: var(--serif); font-style: italic; font-size: 19px; }
+.prompt .q.enter { animation: viewIn .4s ease-out; }
+.prompt textarea { min-height: 84px; resize: vertical; }
+
 .paper {
-  border-radius: 14px; border: 1px solid var(--border); overflow: hidden;
+  border-radius: 14px; border: 1px solid var(--border); overflow: hidden; position: relative;
   background: repeating-linear-gradient(var(--surface-solid) 0 31px, color-mix(in srgb, var(--accent) 22%, transparent) 31px 32px);
-  position: relative;
 }
 .paper::before { content: ""; position: absolute; left: 30px; top: 0; bottom: 0; border-left: 2px solid color-mix(in srgb, var(--ic-heart) 55%, transparent); }
 .paper textarea {
-  width: 100%; min-height: 192px; border: 0; outline: 0; resize: vertical; background: transparent; color: var(--text);
+  width: 100%; min-height: 160px; border: 0; outline: 0; resize: vertical; background: transparent; color: var(--text);
   font: 18px/32px "Noteworthy", "Bradley Hand", ui-rounded, cursive; padding: 0 12px 0 40px; display: block;
 }
-.small-del { margin-top: 6px; min-height: 42px; padding: 10px; font-size: 14px; }
+.saved-hint { text-align: center; color: var(--muted); font-size: 13px; min-height: 18px; margin: 6px 0 0; }
+.small-del { margin-top: 2px; min-height: 42px; padding: 10px; font-size: 14px; }
 
-/* Calendario de ánimo */
+/* Lo interesante */
+.ins-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.ins { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; animation: rise .45s ease-out both; }
+.ins .ic { width: 34px; height: 34px; }
+.ins b { font-size: 30px; line-height: 1.1; }
+[data-style="journal"] .ins b { font-family: var(--serif); font-weight: 500; font-size: 34px; }
+.ins span { color: var(--muted); font-size: 13px; }
+.ins-list { margin-bottom: 10px; animation: rise .45s ease-out both; }
+.ins-list h3 { margin: 0 0 8px; font-size: 16px; }
+[data-style="journal"] .ins-list h3 { font-family: var(--serif); font-weight: 500; font-size: 19px; }
+.good { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.good .ic { width: 34px; height: 34px; flex: none; }
+.good p { margin: 0; font-size: 14.5px; }
+.good small { color: var(--muted); }
+.emo-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.emo-cloud span {
+  font-size: calc(14px * var(--s)); padding: 4px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 28%, var(--surface-solid)); border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+}
+.emo-cloud b { font-size: 12px; opacity: .7; }
+.memory { width: 100%; text-align: center; font: inherit; color: inherit; margin-bottom: 10px; cursor: pointer; position: relative; animation: rise .45s ease-out both; }
+.memory small { display: block; font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .1em; color: var(--accent); font-size: 11px; font-weight: 700; }
+.memory span .ic { width: 44px; height: 44px; margin: 8px auto 4px; }
+.memory p { margin: 0; font-size: 16px; }
+[data-style="journal"] .memory p { font-family: var(--serif); font-style: italic; font-size: 18px; }
+
+/* Calendario */
 .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cal-h { text-align: center; font-size: 12px; color: var(--muted); font-weight: 700; padding-bottom: 4px; }
-.cal-d {
-  position: relative; aspect-ratio: 1; border: 0; background: none; border-radius: 12px; display: grid; place-items: center;
-  font-size: 14px; color: var(--text); padding: 0;
-}
+.cal-d { position: relative; aspect-ratio: 1; border: 0; background: none; border-radius: 12px; display: grid; place-items: center; font-size: 14px; color: var(--text); padding: 0; }
 .cal-d .ic { width: 82%; height: 82%; }
 .cal-d:disabled { opacity: .3; }
 .cal-d.today { box-shadow: inset 0 0 0 2px var(--accent); }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Diario · Mi cielo</title>
+<title>Mi día · Mi cielo</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#efe6f3">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,20 +20,23 @@
 <header class="topbar">
   <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
   <div class="titles">
-    <h1>Diario</h1>
+    <h1>Mi día</h1>
     <p class="subtitle" id="subtitle"></p>
   </div>
 </header>
 
 <main>
-  <section class="card entry" id="entry"></section>
+  <div class="day-head" id="dayHead"></div>
+  <div id="form"></div>
+
+  <div id="insights"></div>
 
   <h2>Tu cielo del mes</h2>
   <div class="month-nav" data-month-nav></div>
   <div class="card calendar" id="calendar"></div>
   <div class="mood-stats" id="moodStats"></div>
 
-  <h2>Páginas recientes</h2>
+  <h2>Días recientes</h2>
   <div id="recent"></div>
 </main>
 

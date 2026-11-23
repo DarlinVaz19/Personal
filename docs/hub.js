@@ -37,6 +37,7 @@ function stats() {
   out.habitsDone = doneToday.length;
 
   out.mood = read('diario.v1')?.entries?.[today]?.mood || null;
+  out.shopping = (read('compras.v1')?.items || []).filter((i) => !i.done).length;
 
   const nights = read('sueno.v1')?.nights || {};
   const lastKey = Object.keys(nights).sort().pop();
@@ -80,13 +81,13 @@ function renderTiles(s) {
     gatosSub = `${cat ? cat.name + ': ' : ''}${d < 0 ? 'cuidado pendiente' : d === 0 ? 'cuidado hoy' : `cuidado en ${d} día${d === 1 ? '' : 's'}`}`;
   }
   const tiles = [
-    { href: 'finanzas/', icon: 'mod_finanzas', name: 'Finanzas', sub: `${fmt(s.monthSpent)} este mes` },
+    { href: 'finanzas/', icon: 'mod_finanzas', name: 'Finanzas', sub: `${fmt(s.monthSpent)} este mes`, wide: true },
     { href: 'ideas/', icon: 'mod_ideas', name: 'Ideas', sub: s.ideasOpen ? `${s.ideasOpen} idea${s.ideasOpen === 1 ? '' : 's'} en el tablero` : 'Tu tablero de notas' },
     { href: 'gatos/', icon: 'mod_gatos', name: 'Gatos', sub: gatosSub },
     { href: 'habitos/', icon: 'mod_habitos', name: 'Hábitos', sub: s.habitsTotal ? `Hoy: ${s.habitsDone} de ${s.habitsTotal}` : 'Crea tus hábitos' },
-    { href: 'diario/', icon: 'mod_diario', name: 'Diario', sub: s.mood ? `Hoy: ${MOODS[s.mood]}` : '¿Cómo está tu cielo hoy?' },
+    { href: 'diario/', icon: 'mod_diario', name: 'Mi día', sub: s.mood ? `Hoy: ${MOODS[s.mood]}` : '¿Cómo está tu cielo hoy?' },
+    { href: 'compras/', icon: 'mod_compras', name: 'Compras', sub: s.shopping ? `${s.shopping} por comprar` : 'Tu lista de compras' },
     { href: 'sueno/', icon: 'mod_sueno', name: 'Sueño', sub: s.sleep ? `Anoche: ${Math.floor(s.sleep.minutes / 60)} h ${Math.round(s.sleep.minutes % 60)} min` : '¿Cómo dormiste?' },
-    { href: 'ajustes/', icon: 'tab_ajustes', name: 'Ajustes', sub: 'Tema, foto y respaldo', wide: true },
   ];
   $('#tiles').innerHTML = tiles.map((t, i) => `
     <a class="tile ${t.wide ? 'wide' : ''}" href="${t.href}" data-nav style="--i:${i}">

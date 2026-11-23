@@ -1,0 +1,55 @@
+/* ===== Lista de compras ===== */
+.shop-hero .v { font-size: 30px; }
+.shop-hero .runway { position: relative; height: 40px; margin-top: 8px; z-index: 1; }
+.shop-hero .runway-line { position: absolute; left: 0; right: 0; top: 26px; height: 10px; border-radius: 6px; background: rgba(0, 0, 0, .16); }
+.shop-hero .runway-fill { position: absolute; left: 0; top: 26px; height: 10px; border-radius: 6px; background: rgba(255, 255, 255, .55); transition: width .6s ease-out; }
+.shop-hero .runway-jet { position: absolute; top: 0; width: 38px; height: 38px; transition: left .6s cubic-bezier(.3, 1.3, .5, 1); }
+.shop-hero .runway-jet .ic { width: 38px; height: 38px; --ic-line: rgba(0, 0, 0, .28); }
+
+/* Agregado rápido */
+.quick { display: flex; gap: 8px; margin-bottom: 10px; }
+.quick input {
+  flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px;
+  min-height: 52px; outline: 0; font: inherit; color: inherit; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.quick input:focus { border-color: var(--accent); }
+.quick-add {
+  width: 52px; height: 52px; flex: none; border: 0; border-radius: 16px; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast); box-shadow: var(--shadow);
+}
+.quick-add svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+.quick-add:active { transform: scale(.94); }
+.cats, .filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
+.cats::-webkit-scrollbar, .filters::-webkit-scrollbar { display: none; }
+.cats .chip { min-height: 40px; padding: 6px 12px 6px 8px; }
+
+/* Grupos y artículos */
+.group { margin-bottom: 14px; }
+.group-head { display: flex; align-items: center; gap: 8px; margin: 0 2px 8px; font-weight: 700; }
+[data-style="journal"] .group-head span { font-family: var(--serif); font-weight: 500; font-size: 19px; }
+.group-head .ic { width: 28px; height: 28px; }
+.group-head small { margin-left: auto; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 1px 9px; font-weight: 600; }
+.shop-item {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px 12px 8px 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); animation: rise .4s ease-out both; animation-delay: calc(var(--i) * 30ms);
+}
+.shop-item.pop-in { animation: popIn .5s cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes popIn { from { transform: scale(.7) translateY(-10px); opacity: 0; } to { transform: none; opacity: 1; } }
+.check-btn {
+  width: 42px; height: 42px; flex: none; border-radius: 50%; border: 2.5px solid var(--accent); background: transparent;
+  display: grid; place-items: center; color: transparent; transition: background .25s, color .25s;
+}
+.check-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset .35s ease-out; }
+.check-btn[aria-pressed="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast); border-color: transparent; }
+.check-btn[aria-pressed="true"] svg { stroke-dashoffset: 0; }
+.shop-main { flex: 1; min-width: 0; border: 0; background: none; text-align: left; padding: 4px 0; display: flex; flex-direction: column; font: inherit; color: inherit; }
+.shop-main .t { font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shop-main .s { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.price { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 14.5px; }
+.shop-item.done { opacity: .7; }
+.shop-item.done .t { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 2px; }
+.cart-actions { display: grid; gap: 0; }
+.cart-actions .btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cart-actions .ic { width: 26px; height: 26px; }
+.fin-preview .item { padding: 10px 12px; }

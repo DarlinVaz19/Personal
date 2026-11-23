@@ -185,6 +185,41 @@ const ICONS = {
     <path class="l" d="M24.5 13.5h1.4"/>
     <circle class="s" cx="11.5" cy="12" r=".9"/>`,
 
+  mod_compras: () => `
+    <rect class="a o" x="11" y="3" width="10" height="5" rx="1.8"/>
+    <path class="f o" d="M8 6h16a2.5 2.5 0 0 1 2.5 2.5v18A2.5 2.5 0 0 1 24 29H8a2.5 2.5 0 0 1-2.5-2.5v-18A2.5 2.5 0 0 1 8 6z"/>
+    <rect class="a o" x="11" y="3" width="10" height="5" rx="1.8"/>
+    <path class="l" d="M9.5 13.5l1.5 1.5 2.6-2.8M16.5 14h6M9.5 20l1.5 1.5 2.6-2.8M16.5 20.5h6"/>
+    <path class="h o" d="${heart(12, 25.6, 1.6)}"/><path class="l" d="M16.5 26h4"/>
+    ${sp(27.5, 4.5, 2.4)}`,
+  trabajo: () => `
+    <path class="a o" d="M12 9V6.5A1.5 1.5 0 0 1 13.5 5h5A1.5 1.5 0 0 1 20 6.5V9"/>
+    <rect class="f o" x="4" y="9" width="24" height="17" rx="3.5"/>
+    <path class="l" d="M4 16.5c7 2.6 17 2.6 24 0"/>
+    <rect class="s o" x="13.5" y="15" width="5" height="4" rx="1"/>`,
+  ropa: () => `
+    <path class="f o" d="M11.5 4.5h9l1.5 3.5-2 3 2.5 16.5h-14L11 11l-2-3z"/>
+    <path class="l" d="M11.5 4.5q4.5 4 9 0"/>
+    <path class="h o" d="M12.2 11.2h7.6l-.5 2.4h-6.6z"/>
+    ${sp(26.5, 7, 2.4)}<circle class="s" cx="5.5" cy="22" r="1.1"/>`,
+  regalo: () => `
+    <rect class="f o" x="5" y="13" width="22" height="15" rx="2.5"/>
+    <rect class="a o" x="3.5" y="9" width="25" height="5.5" rx="1.8"/>
+    <path class="h" d="M14 9h4v19h-4z"/>
+    <path class="o" fill="none" d="M14 9h4v19h-4z"/>
+    <path class="h o" d="M16 9c-2.4-4.2-7-4.6-7-2.2S12.6 9 16 9zm0 0c2.4-4.2 7-4.6 7-2.2S19.4 9 16 9z"/>`,
+  cocinar: () => `
+    <path class="a o" d="M9 12.5a7 7 0 0 1 14 0"/>
+    <path class="f o" d="M5 13h22v3.5a8 8 0 0 1-8 8h-6a8 8 0 0 1-8-8z"/>
+    <path class="l" d="M2.5 15h2.5M27 15h2.5M12 4.5c-1 1.4 1 2.2 0 3.6M16 3.5c-1 1.4 1 2.2 0 3.6M20 4.5c-1 1.4 1 2.2 0 3.6"/>
+    <path class="h o" d="${heart(16, 18.6, 2.2)}"/>`,
+  musica: () => `
+    <path class="l" d="M12 22.5V7.5l13-3v15"/>
+    <ellipse class="h o" cx="9" cy="23" rx="3.6" ry="2.8"/>
+    <ellipse class="h o" cx="22" cy="20" rx="3.6" ry="2.8"/>
+    <path class="a o" d="M12 7.5l13-3v4l-13 3z"/>
+    ${sp(5.5, 8, 2.4)}`,
+
   /* ---- Estados de ánimo (cielo) ---- */
   mood_radiante: () => `
     <path class="l" d="M16 2.5v3.6M16 25.9v3.6M2.5 16h3.6M25.9 16h3.6M6.5 6.5l2.6 2.6M22.9 22.9l2.6 2.6M6.5 25.5l2.6-2.6M22.9 9.1l2.6-2.6"/>
