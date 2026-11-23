@@ -1,6 +1,6 @@
 // Service worker de "Mi cielo": permite abrir todas las secciones sin internet.
 // Sube CACHE cuando cambies archivos para que el teléfono descargue la versión nueva.
-const CACHE = 'mi-cielo-v7';
+const CACHE = 'mi-cielo-v8';
 const ASSETS = [
   './', 'index.html', 'hub.js', 'hub.css', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
@@ -15,7 +15,8 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache: 'reload' evita que el navegador use copias viejas de los archivos.
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {

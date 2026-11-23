@@ -435,6 +435,16 @@ function initPage({ land } = {}) {
 
   if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register(`${ROOT}sw.js`, { scope: ROOT }).catch((e) => console.warn('SW', e));
+    // Si había una versión anterior y llega una nueva, recarga una vez para mostrarla.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register(`${ROOT}sw.js`, { scope: ROOT })
+      .then((reg) => reg.update())
+      .catch((e) => console.warn('SW', e));
   }
 }

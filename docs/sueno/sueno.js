@@ -521,6 +521,16 @@ function bind() {
   });
 }
 
+// Limpieza: la versión anterior podía guardar una siesta como una noche con fecha futura.
+(function cleanFuture() {
+  const today = todayISO();
+  let changed = false;
+  for (const k of Object.keys(store.data.nights)) {
+    if (k > today && store.data.nights[k].source === 'watch') { delete store.data.nights[k]; changed = true; }
+  }
+  if (changed) store.save();
+})();
+
 bind();
 render();
 initPage();
