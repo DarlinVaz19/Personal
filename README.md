@@ -11,12 +11,13 @@ Web app instalable en el celular (PWA) para registrar gastos en MXN.
 - **Deudas:** saldo por persona, con un botón para registrar cuando te pagan o pagas.
 - **Resumen mensual:** tu gasto personal, lo que salió de cada tarjeta y el gasto por categoría.
 - **Privacidad:** los datos se guardan **solo en el teléfono** (localStorage). Nada se sube al repo ni a ningún servidor.
+- **Temas:** 8 temas a elegir en *Ajustes* (Menta, Sakura, Lavanda, Arena, Océano, Medianoche, Grafito o Automático).
 - **Respaldo:** en *Ajustes → Exportar respaldo (.json)*. Se importa en el mismo lugar. También se puede exportar a CSV para Excel.
 
 ### Publicarla (GitHub Pages)
 
-1. Haz merge de esta rama a `main`.
-2. En GitHub, ve a **Settings → Pages**, elige *Deploy from a branch*, rama `main` y carpeta `/docs`.
+1. El repo debe ser público (Pages es gratis solo en repos públicos): **Settings → General → Danger Zone → Change visibility**.
+2. En **Settings → Pages**, elige *Deploy from a branch*, rama `main` y carpeta `/docs`.
 3. Abre `https://<tu-usuario>.github.io/Personal/finanzas/` en el celular.
 4. Instálala:
    - **iPhone (Safari):** Compartir → *Agregar a pantalla de inicio*.

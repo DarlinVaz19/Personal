@@ -14,6 +14,14 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
+<script>
+  // Aplica el tema guardado antes de pintar, para que no parpadee.
+  try {
+    var t = (JSON.parse(localStorage.getItem('finanzas.v1')) || {}).theme || 'auto';
+    if (t === 'auto') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'medianoche' : 'menta';
+    document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
 </head>
 <body>
 <header class="topbar">
@@ -23,6 +31,7 @@
 <main>
   <!-- NUEVO / EDITAR -->
   <section id="view-nuevo" class="view">
+    <div class="hero" id="hero"></div>
     <div class="edit-banner" id="editBanner" hidden>
       <span>Editando movimiento</span>
       <button type="button" class="link" id="cancelEdit">Cancelar</button>
@@ -98,6 +107,9 @@
 
   <!-- AJUSTES -->
   <section id="view-ajustes" class="view" hidden>
+    <h2>Tema</h2>
+    <div class="themes" id="themes"></div>
+
     <h2>Tarjetas y cuentas</h2>
     <div id="cardAdmin"></div>
     <button type="button" class="btn" id="addCard">+ Agregar tarjeta o cuenta</button>

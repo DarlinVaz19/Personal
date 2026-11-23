@@ -45,6 +45,17 @@ const TYPES = {
 };
 const TYPE_ORDER = ['gasto', 'prestado', 'debo', 'cobro', 'pago', 'ingreso'];
 
+const THEMES = [
+  { id: 'auto', name: 'Automático', swatch: 'linear-gradient(135deg,#0f766e 0 50%,#a78bfa 50% 100%)' },
+  { id: 'menta', name: 'Menta', swatch: 'linear-gradient(135deg,#0f766e,#34d399)' },
+  { id: 'sakura', name: 'Sakura', swatch: 'linear-gradient(135deg,#c93d68,#f9a8c0)' },
+  { id: 'lavanda', name: 'Lavanda', swatch: 'linear-gradient(135deg,#6a49c9,#c4a7f5)' },
+  { id: 'arena', name: 'Arena', swatch: 'linear-gradient(135deg,#b0532c,#e9c79a)' },
+  { id: 'oceano', name: 'Océano', swatch: 'linear-gradient(135deg,#1667ad,#4fc3e8)' },
+  { id: 'medianoche', name: 'Medianoche', swatch: 'linear-gradient(135deg,#1c1733,#a78bfa 60%,#f472b6)' },
+  { id: 'grafito', name: 'Grafito', swatch: 'linear-gradient(135deg,#1d2024 45%,#facc15 45%,#fb923c)' },
+];
+
 const TITLES = {
   nuevo: 'Nuevo movimiento',
   movs: 'Movimientos',
@@ -117,7 +128,7 @@ function toast(msg) {
 /* ---------------- Datos ---------------- */
 
 function emptyDb() {
-  return { version: 1, cards: DEFAULT_CARDS.map((c) => ({ ...c })), movements: [], lastCardId: null, lastBackup: null };
+  return { version: 1, cards: DEFAULT_CARDS.map((c) => ({ ...c })), movements: [], lastCardId: null, lastBackup: null, theme: 'auto' };
 }
 
 function load() {
@@ -195,6 +206,17 @@ function sortedMovements(list) {
   return list.slice().sort((a, b) => (b.date.localeCompare(a.date)) || (b.createdAt - a.createdAt));
 }
 
+/* ---------------- Tema ---------------- */
+
+const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+function applyTheme() {
+  let t = db.theme || 'auto';
+  if (t === 'auto') t = darkQuery.matches ? 'medianoche' : 'menta';
+  document.documentElement.dataset.theme = t;
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+}
+
 /* ---------------- Navegación ---------------- */
 
 function setTab(tab) {
@@ -229,9 +251,25 @@ function renderMonthNavs() {
 
 /* ---------------- Formulario ---------------- */
 
+function renderHero() {
+  const hero = $('#hero');
+  hero.hidden = !!ui.editingId;
+  if (ui.editingId) return;
+  const ym = monthOf(todayISO());
+  const spent = db.movements.filter((m) => monthOf(m.date) === ym).reduce((s, m) => s + personalExpense(m), 0);
+  const people = peopleBalances();
+  const owedToMe = people.filter((p) => p.balance > 0).reduce((s, p) => s + p.balance, 0);
+  const iOwe = people.filter((p) => p.balance < 0).reduce((s, p) => s - p.balance, 0);
+  hero.innerHTML = `
+    <div class="k">Tu gasto en ${esc(new Date().toLocaleDateString('es-MX', { month: 'long' }))}</div>
+    <div class="v">${fmt(spent)}</div>
+    <div class="meta"><span>Te deben ${fmt(owedToMe)}</span><span>Debes ${fmt(iOwe)}</span></div>`;
+}
+
 function renderForm() {
   const f = ui.form;
   const t = TYPES[f.type];
+  renderHero();
 
   $('#types').innerHTML = TYPE_ORDER.map((k) => `
     <button type="button" class="type" role="radio" data-type="${k}" aria-checked="${k === f.type}">
@@ -370,7 +408,7 @@ function submitForm() {
   if (!save()) return;
 
   const wasEditing = !!ui.editingId;
-  resetForm();
+  resetForm(false);
   renderForm();
   toast(wasEditing ? 'Cambios guardados' : `Guardado: ${fmt(amount)}`);
   if (wasEditing) setTab('movs');
@@ -541,6 +579,11 @@ function renderSummary() {
 /* ---------------- Ajustes ---------------- */
 
 function renderSettings() {
+  $('#themes').innerHTML = THEMES.map((t) => `
+    <button type="button" class="theme-opt" data-theme-id="${t.id}" aria-pressed="${(db.theme || 'auto') === t.id}">
+      <span class="sw" style="background:${t.swatch}"></span>${esc(t.name)}
+    </button>`).join('');
+
   $('#cardAdmin').innerHTML = `<div class="list">${db.cards.map((c) => `
     <div class="card-row" data-card-row="${esc(c.id)}">
       <input type="color" value="${esc(c.color)}" data-card-color aria-label="Color">
@@ -615,6 +658,7 @@ function importJson(file) {
       if (!confirm(`Esto reemplazará tus datos actuales con el respaldo (${data.movements.length} movimientos). ¿Continuar?`)) return;
       db = { ...emptyDb(), ...data };
       save();
+      applyTheme();
       resetForm(false);
       toast('Respaldo importado');
       render();
@@ -729,6 +773,16 @@ function bind() {
     renderSettings();
   });
 
+  $('#themes').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-theme-id]');
+    if (!b) return;
+    db.theme = b.dataset.themeId;
+    save();
+    applyTheme();
+    renderSettings();
+  });
+  darkQuery.addEventListener?.('change', applyTheme);
+
   $('#exportJson').addEventListener('click', exportJson);
   $('#exportCsv').addEventListener('click', exportCsv);
   $('#importJson').addEventListener('click', () => $('#importFile').click());
@@ -742,6 +796,7 @@ function bind() {
     if (prompt('Escribe BORRAR para confirmar') !== 'BORRAR') return;
     db = emptyDb();
     save();
+    applyTheme();
     resetForm(false);
     toast('Datos borrados');
     render();
@@ -753,6 +808,7 @@ function bind() {
 function init() {
   // Primera vez: guardar tarjetas por defecto.
   if (!localStorage.getItem(STORAGE_KEY)) save();
+  applyTheme();
   bind();
   resetForm(false);
   setTab('nuevo');
