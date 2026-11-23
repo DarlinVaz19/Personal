@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis Finanzas</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Finanzas">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <h1 id="title">Nuevo movimiento</h1>
+</header>
+
+<main>
+  <!-- NUEVO / EDITAR -->
+  <section id="view-nuevo" class="view">
+    <div class="edit-banner" id="editBanner" hidden>
+      <span>Editando movimiento</span>
+      <button type="button" class="link" id="cancelEdit">Cancelar</button>
+    </div>
+
+    <div class="types" id="types" role="radiogroup" aria-label="Tipo de movimiento"></div>
+
+    <label class="amount">
+      <span class="currency">$</span>
+      <input id="amount" inputmode="decimal" placeholder="0.00" autocomplete="off" aria-label="Monto">
+    </label>
+
+    <div class="field" data-field="card">
+      <div class="label" id="cardLabel">¿Con qué pagaste?</div>
+      <div class="chips" id="cards"></div>
+    </div>
+
+    <div class="field" data-field="person">
+      <label class="label" for="person" id="personLabel">Persona</label>
+      <input id="person" list="peopleList" placeholder="Nombre" autocomplete="off">
+      <datalist id="peopleList"></datalist>
+    </div>
+
+    <div class="field" data-field="owed">
+      <label class="label" for="owed">¿Cuánto te debe?</label>
+      <div class="row">
+        <input id="owed" inputmode="decimal" autocomplete="off">
+        <button type="button" class="chip" data-owed="all">Todo</button>
+        <button type="button" class="chip" data-owed="half">Mitad</button>
+      </div>
+      <div class="hint" id="owedHint"></div>
+    </div>
+
+    <div class="field" data-field="category">
+      <div class="label" id="catLabel">Categoría</div>
+      <div class="chips" id="categories"></div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="note">Nota</label>
+      <input id="note" placeholder="Opcional (ej. cena con amigos)" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <label class="label" for="date">Fecha</label>
+      <input id="date" type="date">
+    </div>
+
+    <button type="button" class="btn primary" id="save">Guardar</button>
+    <button type="button" class="btn danger" id="delete" hidden>Eliminar movimiento</button>
+  </section>
+
+  <!-- MOVIMIENTOS -->
+  <section id="view-movs" class="view" hidden>
+    <div class="month-nav" data-month-nav></div>
+    <div class="row filters">
+      <select id="filterCard" aria-label="Filtrar por tarjeta"></select>
+    </div>
+    <div id="movList"></div>
+  </section>
+
+  <!-- DEUDAS -->
+  <section id="view-deudas" class="view" hidden>
+    <div class="totals" id="debtTotals"></div>
+    <div id="debtList"></div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section id="view-resumen" class="view" hidden>
+    <div class="month-nav" data-month-nav></div>
+    <div id="summary"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section id="view-ajustes" class="view" hidden>
+    <h2>Tarjetas y cuentas</h2>
+    <div id="cardAdmin"></div>
+    <button type="button" class="btn" id="addCard">+ Agregar tarjeta o cuenta</button>
+
+    <h2>Respaldo</h2>
+    <p class="muted">Tus datos viven solo en este teléfono. Exporta un respaldo de vez en cuando (y antes de cambiar de celular o borrar datos del navegador).</p>
+    <p class="muted" id="backupInfo"></p>
+    <div class="stack">
+      <button type="button" class="btn" id="exportJson">Exportar respaldo (.json)</button>
+      <button type="button" class="btn" id="importJson">Importar respaldo</button>
+      <button type="button" class="btn" id="exportCsv">Exportar a Excel (.csv)</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+    <p class="muted small" id="storageInfo"></p>
+
+    <h2>Zona peligrosa</h2>
+    <button type="button" class="btn danger" id="wipe">Borrar todos los datos</button>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <button type="button" data-tab="nuevo" aria-label="Nuevo">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Nuevo</span>
+  </button>
+  <button type="button" data-tab="movs" aria-label="Movimientos">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Movimientos</span>
+  </button>
+  <button type="button" data-tab="deudas" aria-label="Deudas">
+    <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 11h6M19 8v6"/></svg><span>Deudas</span>
+  </button>
+  <button type="button" data-tab="resumen" aria-label="Resumen">
+    <svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg><span>Resumen</span>
+  </button>
+  <button type="button" data-tab="ajustes" aria-label="Ajustes">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>Ajustes</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
