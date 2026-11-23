@@ -286,6 +286,84 @@ function renderPhotoAdmin() {
       <button type="button" class="btn danger" data-photo="remove">Quitar foto</button>` : ''}`;
 }
 
+/* ---------------- Efectos ---------------- */
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+// Vuelve a disparar una animación CSS ligada a una clase.
+function replay(el, cls) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+}
+
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+const PARTICLE_SHAPES = {
+  star: (c) => `<svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.6 6.1.7-4.5 4.2 1.2 6L10 14.6 4.6 17.5l1.2-6L1.3 7.3l6.1-.7z" fill="${c}"/></svg>`,
+  sparkle: (c) => `<svg viewBox="0 0 20 20"><path d="M10 0Q11.6 8.4 20 10Q11.6 11.6 10 20Q8.4 11.6 0 10Q8.4 8.4 10 0Z" fill="${c}"/></svg>`,
+  heart: (c) => `<svg viewBox="0 0 20 20"><path d="M10 18C-1 10 3 1 10 5.5 17 1 21 10 10 18Z" fill="${c}"/></svg>`,
+  dot: (c) => `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6" fill="${c}"/></svg>`,
+  cloud: () => `<svg viewBox="0 0 32 20"><g fill="#fff" fill-opacity=".95"><circle cx="9" cy="12" r="6"/><circle cx="17" cy="8" r="8"/><circle cx="25" cy="12" r="5.5"/><rect x="3" y="11" width="27" height="7" rx="3.5"/></g></svg>`,
+};
+
+// Lluvia de estrellas, destellos y corazones desde (x, y).
+function burst(x, y, { count = 10, spread = 80, size = [8, 16], duration = 900 } = {}) {
+  if (reduceMotion.matches) return;
+  const colors = [cssVar('--ic-spark'), cssVar('--ic-heart'), cssVar('--accent'), cssVar('--accent-2'), '#ffffff'];
+  const shapes = ['star', 'sparkle', 'sparkle', 'heart', 'dot'];
+  for (let i = 0; i < count; i++) {
+    const shape = count > 15 && i % 9 === 0 ? 'cloud' : shapes[i % shapes.length];
+    const el = document.createElement('span');
+    el.className = 'particle';
+    const s = size[0] + Math.random() * (size[1] - size[0]) * (shape === 'cloud' ? 1.8 : 1);
+    el.style.width = el.style.height = `${s}px`;
+    el.innerHTML = PARTICLE_SHAPES[shape](colors[(Math.random() * colors.length) | 0]);
+    document.body.appendChild(el);
+    const angle = (Math.PI * 2 * i) / count + Math.random() * 0.6;
+    const dist = spread * (0.45 + Math.random() * 0.55);
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist - spread * 0.25;
+    const rot = (Math.random() - 0.5) * 540;
+    const anim = el.animate([
+      { transform: `translate(${x - s / 2}px, ${y - s / 2}px) scale(.2) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${x - s / 2 + dx}px, ${y - s / 2 + dy}px) scale(1) rotate(${rot}deg)`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${x - s / 2 + dx * 1.15}px, ${y - s / 2 + dy + spread * 0.45}px) scale(.5) rotate(${rot * 1.4}deg)`, opacity: 0 },
+    ], { duration: duration * (0.8 + Math.random() * 0.4), easing: 'cubic-bezier(.2,.7,.3,1)' });
+    anim.onfinish = () => el.parentNode && el.parentNode.removeChild(el);
+  }
+}
+
+// Tarjeta de celebración en el centro de la pantalla.
+function celebrate(iconName, title, sub, big = false) {
+  const host = $('#celebrate');
+  host.innerHTML = `<div class="card">${icon(iconName)}<b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ''}</div>`;
+  if (big && !reduceMotion.matches) {
+    // confeti extra que cae desde arriba
+    for (let i = 0; i < 6; i++) {
+      setTimeout(() => burst(window.innerWidth * (0.15 + Math.random() * 0.7), window.innerHeight * 0.25,
+        { count: 10, spread: 120, size: [10, 18], duration: 1300 }), i * 120);
+    }
+  }
+}
+
+// Anima un monto de un valor a otro.
+function countUp(el, from, to) {
+  if (!el) return;
+  if (reduceMotion.matches) { el.textContent = fmt(to); return; }
+  const start = performance.now();
+  const dur = 750;
+  const step = (now) => {
+    const k = Math.min(1, (now - start) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    el.textContent = fmt(from + (to - from) * e);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 /* ---------------- Navegación ---------------- */
 
 function setTab(tab) {
@@ -299,6 +377,8 @@ function setTab(tab) {
   $('#subtitle').textContent = `${new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })} ☁︎ ✦`;
   render();
   window.scrollTo(0, 0);
+  replay($(`#view-${tab}`), 'enter');
+  replay($(`#tabbar [data-tab="${tab}"]`), 'just');
 }
 
 function render() {
@@ -331,10 +411,25 @@ function renderHero() {
   const people = peopleBalances();
   const owedToMe = people.filter((p) => p.balance > 0).reduce((s, p) => s + p.balance, 0);
   const iOwe = people.filter((p) => p.balance < 0).reduce((s, p) => s - p.balance, 0);
-  hero.innerHTML = `
-    <div class="k">Tu gasto en ${esc(new Date().toLocaleDateString('es-MX', { month: 'long' }))}</div>
-    <div class="v">${fmt(spent)}</div>
-    <div class="meta"><span>Te deben ${fmt(owedToMe)}</span><span>Debes ${fmt(iOwe)}</span></div>`;
+  if (!hero.dataset.ready) {
+    hero.dataset.ready = '1';
+    const stars = [12, 30, 52, 70, 86].map((x, i) =>
+      `<span class="float-star" style="--x:${x}%;--d:${(i * 0.75).toFixed(2)}s"></span>`).join('');
+    hero.innerHTML = `
+      <span class="shine"></span>${stars}
+      <span class="moon">${icon('moon')}</span>
+      <div class="k">Tu gasto en ${esc(new Date().toLocaleDateString('es-MX', { month: 'long' }))}</div>
+      <div class="v" id="heroAmount">${fmt(spent)}</div>
+      <div class="meta"><span id="heroOwed"></span><span id="heroOwe"></span></div>`;
+    ui.heroSpent = spent;
+  }
+  $('#heroOwed').textContent = `Te deben ${fmt(owedToMe)}`;
+  $('#heroOwe').textContent = `Debes ${fmt(iOwe)}`;
+  if (ui.heroSpent !== spent) {
+    countUp($('#heroAmount'), ui.heroSpent || 0, spent);
+    ui.heroSpent = spent;
+    replay(hero, 'bump');
+  }
 }
 
 function renderForm() {
@@ -344,7 +439,7 @@ function renderForm() {
 
   $('#types').innerHTML = TYPE_ORDER.map((k) => `
     <button type="button" class="type" role="radio" data-type="${k}" aria-checked="${k === f.type}">
-      <b>${TYPES[k].icon}</b>${esc(TYPES[k].label)}
+      ${icon(k)}${esc(TYPES[k].label)}
     </button>`).join('');
 
   // Tarjeta
@@ -379,7 +474,7 @@ function renderForm() {
   $('[data-field="category"]').hidden = !t.category;
   $('#catLabel').textContent = f.type === 'prestado' ? 'Categoría (de tu parte)' : 'Categoría';
   $('#categories').innerHTML = CATEGORIES.map((c) => `
-    <button type="button" class="chip" data-cat="${c.id}" aria-pressed="${c.id === f.category}">${c.icon} ${esc(c.name)}</button>`).join('');
+    <button type="button" class="chip" data-cat="${c.id}" aria-pressed="${c.id === f.category}">${icon(c.id)}${esc(c.name)}</button>`).join('');
 
   $('#editBanner').hidden = !ui.editingId;
   $('#delete').hidden = !ui.editingId;
@@ -469,6 +564,8 @@ function submitForm() {
     date,
   };
 
+  const balanceBefore = t.person ? (peopleBalances().find((p) => p.key === personKey(personName))?.balance ?? 0) : 0;
+
   if (ui.editingId) {
     const idx = db.movements.findIndex((x) => x.id === ui.editingId);
     if (idx >= 0) db.movements[idx] = { ...db.movements[idx], ...record, updatedAt: Date.now() };
@@ -479,9 +576,19 @@ function submitForm() {
   if (!save()) return;
 
   const wasEditing = !!ui.editingId;
+  const balanceAfter = t.person ? (peopleBalances().find((p) => p.key === personKey(personName))?.balance ?? 0) : 0;
+  const settled = t.person && balanceBefore !== 0 && balanceAfter === 0;
+  const btn = $('#save').getBoundingClientRect();
   resetForm(false);
   renderForm();
-  toast(wasEditing ? 'Cambios guardados' : `Guardado: ${fmt(amount)}`);
+  if (settled) {
+    celebrate('tab_deudas', `¡A mano con ${personName}!`, 'Deuda saldada', true);
+  } else if (wasEditing) {
+    celebrate('check', 'Cambios guardados', '');
+  } else {
+    celebrate(TYPES[record.type].category && record.category ? record.category : record.type, '¡Guardado!', fmt(amount));
+  }
+  burst(btn.left + btn.width / 2, btn.top + btn.height / 2, { count: settled ? 40 : 22, spread: settled ? 190 : 130, size: [10, 20] });
   if (wasEditing) setTab('movs');
 }
 
@@ -497,7 +604,7 @@ function deleteCurrent() {
 
 /* ---------------- Movimientos ---------------- */
 
-function movementRow(m) {
+function movementRow(m, i = 0) {
   const t = TYPES[m.type] || { label: m.type, icon: '•', flow: 'none' };
   const cat = categoryById(m.category);
   const title = m.note || (m.person && m.type !== 'gasto' ? `${t.label}: ${m.person}` : cat?.name) || t.label;
@@ -512,10 +619,10 @@ function movementRow(m) {
   if (m.type === 'debo') sub = '<small>le debes</small>';
   const card = cardById(m.cardId);
   return `
-    <button type="button" class="item" data-edit="${esc(m.id)}">
-      <span class="dot" style="background:${esc(card?.color || 'var(--border)')}"></span>
+    <button type="button" class="item" data-edit="${esc(m.id)}" style="--i:${i}">
+      <span class="bubble">${icon(cat && t.category ? cat.id : m.type)}${card ? `<span class="dot" style="background:${esc(card.color)}"></span>` : ''}</span>
       <span class="main">
-        <div class="t">${cat && t.category ? cat.icon + ' ' : t.icon + ' '}${esc(title)}</div>
+        <div class="t">${esc(title)}</div>
         <div class="s">${esc(parts.join(' · '))}</div>
       </span>
       <span class="amt ${cls}">${sign}${fmt(m.amount)}${sub}</span>
@@ -642,8 +749,8 @@ function renderSummary() {
     }).join('') : '<div class="empty" style="padding:16px">Sin pagos con tarjeta.</div>'}</div>
     <h2>Gasto personal por categoría</h2>
     <div class="bars">${catRows.length ? catRows.map(([id, v]) => {
-      const c = categoryById(id) || { name: id, icon: '•' };
-      return bar(`${c.icon} ${esc(c.name)}`, v, catMax);
+      const c = categoryById(id) || { id: 'otros', name: id };
+      return bar(`${icon(c.id)}${esc(c.name)}`, v, catMax);
     }).join('') : '<div class="empty" style="padding:16px">Sin gastos personales.</div>'}</div>`;
 }
 
@@ -760,6 +867,7 @@ function bind() {
     else if (t.card === 'optional' && TYPES[prev].card === 'required') ui.form.cardId = null;
     if (!t.category) ui.form.category = null;
     renderForm();
+    replay($(`#types [data-type="${ui.form.type}"]`), 'just');
   });
 
   $('#cards').addEventListener('click', (e) => {
@@ -768,6 +876,7 @@ function bind() {
     const id = b.dataset.card;
     ui.form.cardId = ui.form.cardId === id && TYPES[ui.form.type].card === 'optional' ? null : id;
     renderForm();
+    replay($(`#cards [data-card="${CSS.escape(id)}"]`), 'just');
   });
 
   $('#categories').addEventListener('click', (e) => {
@@ -775,6 +884,7 @@ function bind() {
     if (!b) return;
     ui.form.category = ui.form.category === b.dataset.cat ? null : b.dataset.cat;
     renderForm();
+    replay($(`#categories [data-cat="${b.dataset.cat}"]`), 'just');
   });
 
   $('#amount').addEventListener('input', updateOwedHint);
@@ -852,6 +962,7 @@ function bind() {
     save();
     applyTheme();
     renderSettings();
+    replay($(`#themes [data-theme-id="${db.theme}"]`), 'just');
   });
   darkQuery.addEventListener?.('change', applyTheme);
 
@@ -908,6 +1019,11 @@ function init() {
   if (!localStorage.getItem(STORAGE_KEY)) save();
   applyTheme();
   applyPhoto();
+  for (const b of $$('#tabbar [data-tab]')) b.querySelector('svg').outerHTML = icon(`tab_${b.dataset.tab}`);
+  document.addEventListener('pointerdown', (e) => {
+    const t = e.target.closest('.type, .chip, .theme-opt, .tabbar button, .month-nav button, .btn:not(.primary)');
+    if (t) burst(e.clientX, e.clientY, { count: 6, spread: 34, size: [7, 12], duration: 550 });
+  });
   bind();
   resetForm(false);
   setTab('nuevo');

@@ -489,3 +489,116 @@ h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: v
   top: 10px; right: 18px; font-size: 34px; opacity: .9; font-family: var(--serif);
 }
 [data-style="journal"] .hero .k { font-family: var(--serif); font-style: italic; font-size: 16px; }
+
+/* =========================================================
+   Iconos propios (ver icons.js)
+   ========================================================= */
+:root {
+  --ic-fill: var(--accent-soft);
+  --ic-fill-2: color-mix(in srgb, var(--accent-2) 30%, var(--surface-solid));
+  --ic-line: var(--accent);
+  --ic-spark: #f5bf5f;
+  --ic-heart: #ef8fae;
+  --ic-cloud: color-mix(in srgb, var(--accent) 12%, #ffffff);
+}
+[data-theme="medianoche"], [data-theme="grafito"], [data-theme="nocheestrellada"] {
+  --ic-fill-2: color-mix(in srgb, var(--accent-2) 38%, var(--surface-solid));
+  --ic-cloud: color-mix(in srgb, var(--accent) 22%, var(--surface-solid));
+  --ic-fill: color-mix(in srgb, var(--accent) 22%, var(--surface-solid));
+}
+.ic { width: 28px; height: 28px; display: block; overflow: visible; flex: none; }
+.ic .f { fill: var(--ic-fill); }
+.ic .a { fill: var(--ic-fill-2); }
+.ic .s { fill: var(--ic-spark); }
+.ic .h { fill: var(--ic-heart); }
+.ic .c { fill: var(--ic-cloud); }
+.ic .o, .ic .l, .ic .lw { stroke: var(--ic-line); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ic .l, .ic .lw { fill: none; }
+.ic .lw { stroke: #fff; stroke-width: 2.3; }
+
+.type .ic { width: 36px; height: 36px; margin: 0 auto 6px; }
+.type[aria-checked="true"] .ic { filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .18)); }
+.chip .ic { width: 22px; height: 22px; }
+.bar .top .ic { width: 20px; height: 20px; display: inline-block; vertical-align: -4px; margin-right: 6px; }
+.bubble {
+  position: relative; width: 44px; height: 44px; border-radius: 15px; flex: none;
+  background: var(--surface-2); display: grid; place-items: center;
+}
+.bubble .ic { width: 30px; height: 30px; }
+.bubble .dot { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border: 2px solid var(--surface-solid); }
+.tabbar .ic { width: 27px; height: 27px; transition: filter .25s, transform .25s; }
+.tabbar button:not([aria-current="page"]) .ic { filter: saturate(.2) opacity(.6); }
+.tabbar button[aria-current="page"] .ic { transform: translateY(-2px); }
+
+/* =========================================================
+   Animaciones
+   ========================================================= */
+@keyframes pop { 0% { transform: scale(.6) rotate(-12deg); } 55% { transform: scale(1.25) rotate(8deg); } 100% { transform: none; } }
+@keyframes wiggle { 0%, 100% { transform: none; } 25% { transform: rotate(-16deg) scale(1.2); } 60% { transform: rotate(10deg) scale(1.05); } }
+@keyframes bounce { 0% { transform: translateY(-2px); } 35% { transform: translateY(-9px) scale(1.15); } 65% { transform: translateY(0) scale(.95); } 100% { transform: translateY(-2px); } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes rock { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) translateY(-3px); } }
+@keyframes floaty { 0% { transform: translateY(8px) scale(.4); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-34px) scale(1); opacity: 0; } }
+@keyframes shine { from { transform: translateX(-150%) skewX(-20deg); } to { transform: translateX(350%) skewX(-20deg); } }
+@keyframes heroBump { 0% { transform: scale(1); } 35% { transform: scale(1.035); } 100% { transform: scale(1); } }
+@keyframes celebIn {
+  0% { opacity: 0; transform: scale(.5) translateY(20px); }
+  14% { opacity: 1; transform: scale(1.08); }
+  24% { transform: scale(1); }
+  78% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.96) translateY(-14px); }
+}
+@keyframes spinIn { from { transform: rotate(-200deg) scale(.2); } to { transform: none; } }
+
+.type.just .ic { animation: pop .55s cubic-bezier(.3, 1.6, .5, 1); }
+.chip.just .ic, .chip.just .dot { animation: wiggle .5s ease-out; }
+.chip.just { animation: pop .4s cubic-bezier(.3, 1.6, .5, 1); }
+.tabbar button.just .ic { animation: bounce .5s ease-out; }
+.theme-opt.just .sw { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1); }
+.view.enter { animation: viewIn .38s ease-out; }
+.list .item { animation: rise .42s ease-out both; animation-delay: calc(var(--i, 0) * 45ms); }
+.stat, .bars { animation: rise .45s ease-out both; }
+.totals .stat:nth-child(2) { animation-delay: .06s; }
+.totals .stat:nth-child(3) { animation-delay: .12s; }
+.totals .stat:nth-child(4) { animation-delay: .18s; }
+
+/* Tarjeta de inicio: luna que se mece, estrellitas que flotan, brillo */
+.hero .moon { position: absolute; top: 12px; right: 16px; width: 46px; height: 46px; z-index: 1; animation: rock 5s ease-in-out infinite; transform-origin: 60% 60%; }
+.hero .moon .ic { width: 46px; height: 46px; --ic-line: rgba(0, 0, 0, .18); }
+[data-style="journal"] .hero::after { content: none; }
+.hero .float-star { position: absolute; bottom: 10px; width: 10px; height: 10px; z-index: 1; animation: floaty 3.6s ease-out infinite; animation-delay: var(--d); left: var(--x); }
+.hero .float-star::before { content: "✦"; position: absolute; inset: 0; font-size: 11px; line-height: 10px; color: rgba(255, 255, 255, .9); }
+.hero .shine { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.hero .shine::after { content: ""; position: absolute; top: 0; bottom: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .45), transparent); transform: translateX(-150%) skewX(-20deg); }
+.hero.bump { animation: heroBump .6s ease-out; }
+.hero.bump .shine::after { animation: shine .9s ease-out; }
+.hero .k, .hero .v, .hero .meta { position: relative; z-index: 1; }
+
+/* Botón principal con destello periódico */
+.btn.primary { position: relative; overflow: hidden; }
+.btn.primary::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+  transform: translateX(-150%) skewX(-20deg); animation: shine 4.5s ease-in-out infinite 1.5s;
+}
+
+/* Partículas (estrellas, corazones, nubes) */
+.particle { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; will-change: transform, opacity; }
+.particle svg { display: block; width: 100%; height: 100%; }
+
+/* Celebración al guardar */
+.celebrate { position: fixed; inset: 0; z-index: 55; display: grid; place-items: center; pointer-events: none; }
+.celebrate .card {
+  background: var(--surface-solid); color: var(--text); border: 1px solid var(--border);
+  border-radius: 28px; padding: 22px 30px 18px; text-align: center; box-shadow: 0 18px 50px rgba(0, 0, 0, .22);
+  animation: celebIn 1.25s ease-out forwards; min-width: 190px;
+}
+.celebrate .card .ic { width: 64px; height: 64px; margin: 0 auto 8px; animation: spinIn .6s cubic-bezier(.3, 1.4, .5, 1); }
+.celebrate .card b { display: block; font-size: 20px; }
+[data-style="journal"] .celebrate .card b { font-family: var(--serif); font-weight: 500; font-size: 22px; }
+.celebrate .card span { color: var(--muted); font-size: 15px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+}
