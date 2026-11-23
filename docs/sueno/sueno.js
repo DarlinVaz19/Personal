@@ -56,6 +56,15 @@ function parseWhen(s) {
   if (m) return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
   m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})[ ,]+(\d{1,2}):(\d{2})/);
   if (m) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; return new Date(y, +m[2] - 1, +m[1], +m[4], +m[5]); }
+  // Formato en español de iOS: "22 nov 2026, 11:40 p.m." o "22 de noviembre de 2026, 23:40"
+  const MES = { ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5, jul: 6, ago: 7, sep: 8, set: 8, oct: 9, nov: 10, dic: 11 };
+  m = s.toLocaleLowerCase('es-MX').match(/(\d{1,2})(?: de)? ([a-zé]{3})[a-zé]*\.?(?: de)? (\d{4}),?(?: a las)? (\d{1,2}):(\d{2})(?::\d{2})?\s*([ap])?/);
+  if (m && MES[m[2]] !== undefined) {
+    let h = +m[4];
+    if (m[6] === 'p' && h < 12) h += 12;
+    if (m[6] === 'a' && h === 12) h = 0;
+    return new Date(+m[3], MES[m[2]], +m[1], h, +m[5]);
+  }
   const d = new Date(s);
   return isNaN(d) ? null : d;
 }
@@ -181,11 +190,11 @@ const SHORTCUT_HELP = `
   <p>Se hace una sola vez, en la app <b>Atajos</b> del iPhone:</p>
   <ol>
     <li>Toca <b>+</b> para crear un atajo y llámalo <b>Sueño a Mi cielo</b>.</li>
-    <li>Agrega <b>Buscar muestras de Salud</b> (<i>Find Health Samples</i>). Tipo: <b>Análisis del sueño</b>. Agrega el filtro <b>Fecha de inicio · está en los últimos · 7 días</b>. Ordenar por <b>Fecha de inicio</b>.</li>
+    <li>Agrega <b>Buscar muestras de Salud</b> (<i>Find Health Samples</i>). Tipo: <b>Sueño</b>. Agrega el filtro <b>Fecha de inicio · está en los últimos · 7 días</b>. Ordenar por <b>Fecha de inicio</b>.</li>
     <li>Agrega <b>Repetir con cada</b> (<i>Repeat with Each</i>) sobre las muestras.</li>
-    <li>Dentro de la repetición agrega <b>Formatear fecha</b> con <b>Elemento de repetición → Fecha de inicio</b>, formato <b>Personalizado</b>: <code>yyyy-MM-dd HH:mm</code>.</li>
-    <li>Agrega otro <b>Formatear fecha</b> igual, pero con <b>Fecha de finalización</b>.</li>
-    <li>Agrega <b>Texto</b> y escribe, usando las variables: <code>[fecha inicio];[fecha fin];[Elemento de repetición → Valor]</code></li>
+    <li>Dentro de la repetición agrega <b>Texto</b>. Toca el cuadro, inserta la variable <b>Elemento de repetición</b>, tócala y elige <b>Fecha de inicio</b>; en el formato elige <b>ISO 8601</b> (con hora).</li>
+    <li>Escribe <code>;</code> e inserta otra vez <b>Elemento de repetición</b> → <b>Fecha de finalización</b> → <b>ISO 8601</b>.</li>
+    <li>Escribe <code>;</code> e inserta <b>Elemento de repetición</b> → <b>Valor</b>.</li>
     <li>Después de <b>Fin de repetir</b>, agrega <b>Combinar texto</b> con <b>Resultados de repetir</b>, separador <b>Nueva línea</b>.</li>
     <li>Agrega <b>Copiar al portapapeles</b>. Listo.</li>
   </ol>
