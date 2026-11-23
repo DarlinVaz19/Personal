@@ -17,7 +17,7 @@ Se abre en `https://darlinvaz19.github.io/Personal/` y se instala desde Safari c
 | **Gatos** | Pasaporte felino por gato, salud y veterinario (con próxima fecha), peso con gráfica y compras (se pueden registrar también en Finanzas). |
 | **Hábitos** | Marca tus hábitos del día, rachas, semana a la vista y pista de despegue. |
 | **Diario** | Nota del día y estado de ánimo con iconos de cielo, calendario del mes. |
-| **Sueño** | Horas, fases (profundo, núcleo, REM) y calidad por noche, semana con meta. Se registra a mano o se importa del Apple Watch con un atajo de iOS que copia las muestras de *Análisis del sueño* (instrucciones dentro de la app). |
+| **Sueño** | Horas, fases (profundo, núcleo, REM), siestas, calificación 0–100 (duración, eficiencia, profundo, REM, constancia), consejos personalizados y datos curiosos; semana con meta. Se registra a mano o se importa del Apple Watch con un atajo de iOS que copia las muestras de *Análisis del sueño* (instrucciones dentro de la app). |
 | **Ajustes** | Tema (Cielo, Noche estrellada y más), foto de fondo y respaldo de todo en un solo `.json`. |
 
 ### Estructura

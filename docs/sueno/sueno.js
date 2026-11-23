@@ -35,7 +35,7 @@ function nightsSorted() {
 /* ---------------- Calidad estimada ---------------- */
 
 // Calidad 1–5 a partir de duración, sueño reparador (profundo + REM) y tiempo despierto.
-function estimateQuality(n) {
+function estimateQualityOld(n) {
   const goal = store.data.goal || 480;
   const r = Math.min(1, n.minutes / goal);
   let score = r;
@@ -46,6 +46,13 @@ function estimateQuality(n) {
   }
   // Sin fases no se puede saber si fue reparador: como máximo "Bien".
   return Math.max(1, Math.min(n.stages && (n.stages.deep || n.stages.rem) ? 5 : 4, 1 + Math.round(score * 4)));
+}
+
+function estimateQuality(n, date = todayISO()) {
+  const s = sleepScore(date, n);
+  if (!s) return estimateQualityOld(n);
+  const q = s.score >= 85 ? 5 : s.score >= 70 ? 4 : s.score >= 55 ? 3 : s.score >= 40 ? 2 : 1;
+  return n.stages && (n.stages.deep || n.stages.rem) ? q : Math.min(4, q);
 }
 
 /* ---------------- Importar del Apple Watch ---------------- */
@@ -167,7 +174,7 @@ function importText(text) {
   for (const k of keys) {
     const prev = store.data.nights[k];
     const n = nights[k];
-    n.quality = prev?.qualitySet ? prev.quality : estimateQuality(n);
+    n.quality = prev?.qualitySet ? prev.quality : estimateQuality(n, k);
     n.qualitySet = !!prev?.qualitySet;
     n.note = prev?.note || '';
     store.data.nights[k] = n;
@@ -271,7 +278,7 @@ function nightSheet(date) {
         source: changedTimes ? 'manual' : n.source,
         note: $('#nNote', sheet).value.trim(),
       };
-      night.quality = st.quality || estimateQuality(night);
+      night.quality = st.quality || estimateQuality(night, key);
       night.qualitySet = !!st.quality;
       store.data.nights[key] = night;
       store.save(); closeSheet(); render(true);
@@ -282,6 +289,130 @@ function nightSheet(date) {
       delete store.data.nights[date]; store.save(); closeSheet(); render(true);
     }
   });
+}
+
+/* ---------------- Calificación, consejos y datos curiosos ---------------- */
+
+// Promedio "circular" de horas de dormir (para que 23:30 y 00:30 promedien 00:00).
+function bedOffset(t) { let m = toMin(t); if (m < 12 * 60) m += 1440; return m; }
+
+// Calificación 0–100. Cada parte vale puntos; si falta un dato (p. ej. sin fases),
+// se reparte el puntaje entre las partes disponibles.
+function sleepScore(date, n) {
+  if (!n || !n.minutes) return null;
+  const parts = [];
+  const m = n.minutes;
+  const dur = m >= 420 && m <= 540 ? 1 : m < 420 ? Math.max(0, (m - 240) / 180) : Math.max(0.6, 1 - (m - 540) / 240);
+  parts.push({ id: 'dur', name: 'Duración', w: 40, v: dur, detail: hm(m) });
+  const st = n.stages;
+  if (st && st.awake != null && (st.core || st.deep || st.rem)) {
+    const eff = m / (m + st.awake);
+    parts.push({ id: 'eff', name: 'Eficiencia', w: 20, v: Math.max(0, Math.min(1, (eff - 0.75) / 0.15)), detail: `${Math.round(eff * 100)}% dormido` });
+  }
+  if (st && (st.deep || st.core || st.rem)) {
+    const dp = (st.deep || 0) / m, rp = (st.rem || 0) / m;
+    parts.push({ id: 'deep', name: 'Profundo', w: 15, v: dp >= 0.13 ? 1 : dp / 0.13, detail: `${Math.round(dp * 100)}% (ideal 13–23%)` });
+    parts.push({ id: 'rem', name: 'REM', w: 15, v: rp >= 0.2 ? (rp > 0.3 ? 0.85 : 1) : rp / 0.2, detail: `${Math.round(rp * 100)}% (ideal 20–25%)` });
+  }
+  const prev = Array.from({ length: 7 }, (_, i) => store.data.nights[addDays(date, -(i + 1))]).filter((x) => x && x.bed);
+  if (prev.length >= 3 && n.bed) {
+    const avg = prev.reduce((a, x) => a + bedOffset(x.bed), 0) / prev.length;
+    const diff = Math.abs(bedOffset(n.bed) - avg);
+    parts.push({ id: 'cons', name: 'Constancia', w: 10, v: Math.max(0, Math.min(1, 1 - (diff - 30) / 90)), detail: `${Math.round(diff)} min de tu hora habitual` });
+  }
+  const totalW = parts.reduce((a, p) => a + p.w, 0);
+  const score = Math.round(parts.reduce((a, p) => a + p.w * p.v, 0) / totalW * 100);
+  const label = score >= 85 ? 'Excelente' : score >= 70 ? 'Buena' : score >= 55 ? 'Regular' : 'A mejorar';
+  return { score, label, parts };
+}
+
+function scoreRing(s, size = 112) {
+  const r = 44, c = 2 * Math.PI * r;
+  return `
+    <svg class="ring" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
+      <circle cx="50" cy="50" r="${r}" class="ring-bg"/>
+      <circle cx="50" cy="50" r="${r}" class="ring-fg" style="stroke-dasharray:${c.toFixed(1)};--off:${(c * (1 - s.score / 100)).toFixed(1)}"/>
+    </svg>`;
+}
+
+// Consejos según lo más bajo de la noche (máximo 3) y un consejo general del día.
+function tipsFor(date, n, s) {
+  const tips = [];
+  const by = Object.fromEntries((s?.parts || []).map((p) => [p.id, p]));
+  const st = n?.stages || {};
+  if (by.dur && n.minutes < 420) tips.push({ icon: 'mod_sueno', t: `Dormiste ${hm(n.minutes)}. A los adultos se les recomienda entre 7 y 9 horas: prueba acostarte 30 minutos antes esta semana.` });
+  if (by.dur && n.minutes > 600) tips.push({ icon: 'mood_sueno', t: 'Dormiste más de 10 horas. Si te pasa seguido y aun así amaneces con cansancio, vale la pena comentarlo con tu médico.' });
+  if (by.eff && by.eff.v < 0.6) {
+    tips.push({ icon: 'reloj', t: `Tu noche tuvo ${hm(st.awake)} sin dormir. Si no logras dormirte en unos 20 minutos, levántate, haz algo tranquilo con luz tenue y regresa cuando tengas sueño.` });
+  }
+  if (by.deep && by.deep.v < 0.8) tips.push({ icon: 'ejercicio', t: 'Tu sueño profundo salió bajo. El ejercicio regular (no muy cerca de dormir), un cuarto fresco y evitar alcohol en la noche suelen ayudar.' });
+  if (by.rem && by.rem.v < 0.8) tips.push({ icon: 'mood_feliz', t: 'Tu REM salió bajo. El REM se concentra al final de la noche, así que dormir completo ayuda; el alcohol también lo reduce.' });
+  if (by.cons && by.cons.v < 0.7) tips.push({ icon: 'moon', t: 'Te dormiste lejos de tu hora habitual. Acostarte y despertar a la misma hora, también en fin de semana, ayuda a tu reloj biológico.' });
+  if (n?.napMinutes > 45) tips.push({ icon: 'mood_calma', t: `Tu siesta duró ${hm(n.napMinutes)}. Las siestas cortas (20–30 min) y antes de las 3 p. m. afectan menos el sueño de la noche.` });
+  const general = [
+    { icon: 'comida', t: 'La cafeína puede seguir en tu cuerpo 5 horas o más: intenta tu último café antes de las 2 p. m.' },
+    { icon: 'mood_radiante', t: 'Recibir luz natural en la mañana ayuda a que en la noche te dé sueño a buena hora.' },
+    { icon: 'casa', t: 'Un cuarto fresco, oscuro y silencioso favorece dormir de corrido.' },
+    { icon: 'leer', t: 'Una rutina tranquila antes de dormir (leer, estirarte, luz tenue) le avisa a tu cuerpo que ya es hora.' },
+    { icon: 'tab_movs', t: 'Bajar el brillo y alejar el celular 30–60 min antes de dormir ayuda a desconectarte.' },
+    { icon: 'meditar', t: 'Respirar lento (inhala 4, exhala 6) unos minutos puede ayudarte a relajarte al acostarte.' },
+  ];
+  const dayIdx = Math.floor(Date.now() / 86400000);
+  const out = tips.slice(0, 3);
+  out.push(general[dayIdx % general.length]);
+  if (!tips.length) out.unshift({ icon: 'otros', t: '¡Tu noche se ve muy bien! Sigue con tu rutina ✦' });
+  return out;
+}
+
+const FACTS = [
+  'Pasamos cerca de un tercio de la vida durmiendo.',
+  'El sueño se organiza en ciclos de unos 90 minutos; en una noche completa hay entre 4 y 6.',
+  'El sueño profundo se concentra en la primera mitad de la noche y el REM en la segunda.',
+  'Durante el REM tus ojos se mueven rápido, pero tus músculos quedan casi paralizados para que no "actúes" tus sueños.',
+  'Los sueños más vívidos y con historia suelen ocurrir durante el REM.',
+  'Despertarte brevemente varias veces en la noche es normal; casi nunca lo recuerdas.',
+  'Los gatos duermen entre 12 y 16 horas al día. 🐾',
+  'Los delfines duermen con la mitad del cerebro a la vez, para seguir nadando y salir a respirar.',
+  'En 1964, Randy Gardner estuvo 264 horas (11 días) sin dormir, uno de los récords más conocidos.',
+  'Estudios en ratones muestran que durante el sueño el cerebro "limpia" desechos con más eficiencia.',
+  'Pasar unas 17–19 horas seguidas sin dormir puede afectar los reflejos de forma parecida a haber bebido alcohol.',
+  'El olfato casi no te despierta: por eso las alarmas de humo usan sonido.',
+  'Al dormir, tu temperatura corporal baja un poco; por eso un cuarto fresco ayuda.',
+  'La adolescencia retrasa el reloj biológico: a los adolescentes les da sueño más tarde de forma natural.',
+  'Las siestas de unos 20 minutos pueden mejorar la atención sin causar esa sensación de aturdimiento al despertar.',
+  'Mucha gente sueña a color, pero algunas personas reportan soñar en blanco y negro.',
+];
+let factIdx = Math.floor(Date.now() / 86400000) % FACTS.length;
+
+function renderInsights() {
+  const list = nightsSorted();
+  const box = $('#insights');
+  if (!list.length) { box.innerHTML = ''; return; }
+  const [date, n] = list[0];
+  const s = sleepScore(date, n);
+  const tips = tipsFor(date, n, s);
+  box.innerHTML = `
+    ${s ? `<h2>Calificación</h2>
+    <div class="card score-card">
+      <div class="score-main">
+        <div class="ring-wrap">${scoreRing(s)}<div class="ring-num"><b id="scoreNum">0</b><small>de 100</small></div></div>
+        <div class="score-txt"><b>${esc(s.label)}</b><span>${esc(dayLabel(date))}</span>
+          ${!n.stages ? '<small class="muted">Con datos del Apple Watch la calificación incluye fases y eficiencia.</small>' : ''}</div>
+      </div>
+      <div class="score-parts">${s.parts.map((p) => `
+        <div class="sp"><div class="sp-top"><span>${esc(p.name)}</span><small>${esc(p.detail)}</small></div>
+          <div class="track"><div class="fill" style="width:${Math.round(p.v * 100)}%"></div></div></div>`).join('')}</div>
+      <p class="muted small disclaimer">Estimación orientativa basada en rangos generales para adultos; no es un diagnóstico.</p>
+    </div>` : ''}
+    <h2>Consejos para ti</h2>
+    <div class="tips">${tips.map((t, i) => `<div class="tip" style="--i:${i}">${icon(t.icon)}<p>${esc(t.t)}</p></div>`).join('')}</div>
+    <h2>¿Sabías que…?</h2>
+    <div class="card fact">
+      <span class="fact-ic">${icon('moon')}</span>
+      <p id="factText">${esc(FACTS[factIdx])}</p>
+      <button type="button" class="link" id="nextFact">Otro dato ✦</button>
+    </div>`;
+  if (s) countUp($('#scoreNum'), 0, s.score, (v) => String(Math.round(v)));
 }
 
 /* ---------------- Vistas ---------------- */
@@ -357,12 +488,12 @@ function renderNights() {
     return `<button type="button" class="item" data-night="${d}" style="--i:${i}">
       <span class="bubble">${icon(q ? q.icon : 'mod_sueno')}${n.source === 'watch' ? `<span class="src">${icon('reloj')}</span>` : ''}</span>
       <span class="main"><div class="t">${esc(dayLabel(d))}</div><div class="s">${esc(n.bed)} → ${esc(n.wake)}${q ? ' · ' + esc(q.name) : ''}${n.napMinutes ? ' · siesta ' + hm(n.napMinutes) : ''}${n.note ? ' · ' + esc(n.note) : ''}</div></span>
-      <span class="amt">${hm(n.minutes)}</span>
+      <span class="amt">${hm(n.minutes)}${(() => { const sc = sleepScore(d, n); return sc ? `<small class="score-badge">${sc.score} pts</small>` : ''; })()}</span>
     </button>`;
   }).join('')}</div>`;
 }
 
-function render(animate = false) { renderHero(animate); renderChart(); renderNights(); }
+function render(animate = false) { renderHero(animate); renderInsights(); renderChart(); renderNights(); }
 
 function bind() {
   $('#importWatch').addEventListener('click', importSheet);
@@ -372,6 +503,14 @@ function bind() {
     if (n && !e.target.closest('.sheet')) {
       if (store.data.nights[n.dataset.night]) nightSheet(n.dataset.night);
       else nightSheet(null);
+      return;
+    }
+    if (e.target.closest('#nextFact')) {
+      factIdx = (factIdx + 1) % FACTS.length;
+      const p = $('#factText');
+      p.textContent = FACTS[factIdx];
+      replay(p, 'enter');
+      replay($('.fact-ic'), 'just');
       return;
     }
     if (e.target.closest('#goalBtn')) {

@@ -51,3 +51,45 @@
 .quality .ic { width: 34px; height: 34px; }
 .quality button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--text); font-weight: 700; }
 .quality button.just .ic { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1); }
+
+/* Calificación */
+.score-main { display: flex; align-items: center; gap: 16px; }
+.ring-wrap { position: relative; width: 112px; height: 112px; flex: none; }
+.ring { transform: rotate(-90deg); display: block; }
+.ring-bg { fill: none; stroke: var(--surface-2); stroke-width: 10; }
+.ring-fg { fill: none; stroke: url(#none) var(--accent); stroke: var(--accent); stroke-width: 10; stroke-linecap: round; stroke-dashoffset: var(--off); animation: ringIn 1.1s cubic-bezier(.3, 1, .4, 1) both; }
+@keyframes ringIn { from { stroke-dashoffset: 276.5; } to { stroke-dashoffset: var(--off); } }
+.ring-num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-num b { font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+[data-style="journal"] .ring-num b { font-family: var(--serif); font-weight: 500; font-size: 36px; }
+.ring-num small { color: var(--muted); font-size: 11px; }
+.score-txt { display: flex; flex-direction: column; gap: 2px; }
+.score-txt b { font-size: 22px; }
+[data-style="journal"] .score-txt b { font-family: var(--serif); font-weight: 500; font-size: 26px; }
+.score-txt span { color: var(--muted); font-size: 14px; }
+.score-parts { margin-top: 12px; display: grid; gap: 9px; }
+.sp-top { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; }
+.sp-top small { color: var(--muted); font-weight: 400; font-size: 12px; text-align: right; }
+.sp .track { height: 8px; background: var(--surface-2); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.sp .fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); animation: grow .9s ease-out both; transform-origin: left; }
+.disclaimer { margin: 12px 0 0; }
+.score-badge { display: block; font-size: 11.5px; color: var(--accent); font-weight: 700; }
+
+/* Consejos */
+.tips { display: grid; gap: 10px; }
+.tip {
+  display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 12px 14px; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  animation: rise .45s ease-out both; animation-delay: calc(var(--i) * 70ms);
+}
+.tip .ic { width: 36px; height: 36px; }
+.tip p { margin: 0; font-size: 14.5px; line-height: 1.4; }
+
+/* Dato curioso */
+.fact { position: relative; text-align: center; padding-top: 18px; }
+.fact-ic { display: inline-block; }
+.fact-ic .ic { width: 48px; height: 48px; margin: 0 auto; animation: rock 5s ease-in-out infinite; }
+.fact-ic.just .ic { animation: pop .55s cubic-bezier(.3, 1.6, .5, 1); }
+.fact p { font-size: 16.5px; line-height: 1.45; margin: 8px 4px 6px; }
+[data-style="journal"] .fact p { font-family: var(--serif); font-style: italic; font-size: 18px; }
+.fact p.enter { animation: viewIn .4s ease-out; }
