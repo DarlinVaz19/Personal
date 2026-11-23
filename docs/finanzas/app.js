@@ -25,6 +25,7 @@ const CATEGORIES = [
   { id: 'entretenimiento', name: 'Entretenimiento', icon: '🎬' },
   { id: 'compras', name: 'Compras', icon: '🛍️' },
   { id: 'suscripciones', name: 'Suscripciones', icon: '🔁' },
+  { id: 'viajes', name: 'Viajes', icon: '✈' },
   { id: 'otros', name: 'Otros', icon: '•' },
 ];
 
@@ -364,6 +365,70 @@ function countUp(el, from, to) {
   requestAnimationFrame(step);
 }
 
+/* ---------------- Aviones ✈ ---------------- */
+
+// Nubecita de la estela que deja el avión.
+function puff(x, y, size = 10) {
+  const el = document.createElement('span');
+  el.className = 'puff';
+  el.style.left = `${x - size / 2}px`;
+  el.style.top = `${y - size / 2}px`;
+  el.style.width = el.style.height = `${size}px`;
+  document.body.appendChild(el);
+  el.addEventListener('animationend', () => el.parentNode && el.parentNode.removeChild(el), { once: true });
+}
+
+// Vuela un avioncito por una curva (4 puntos de control). La nariz sigue la curva.
+function flight(points, { duration = 1700, size = 40, easing = (t) => t, trail = true, fadeOut = false } = {}) {
+  if (reduceMotion.matches) return;
+  const el = document.createElement('span');
+  el.className = 'plane-fly';
+  el.style.width = el.style.height = `${size}px`;
+  el.innerHTML = icon('avion');
+  document.body.appendChild(el);
+  const [p0, p1, p2, p3] = points;
+  const B = (t, k) => (1 - t) ** 3 * p0[k] + 3 * (1 - t) ** 2 * t * p1[k] + 3 * (1 - t) * t * t * p2[k] + t ** 3 * p3[k];
+  const D = (t, k) => 3 * (1 - t) ** 2 * (p1[k] - p0[k]) + 6 * (1 - t) * t * (p2[k] - p1[k]) + 3 * t * t * (p3[k] - p2[k]);
+  const start = performance.now();
+  let lastPuff = 0;
+  const step = (now) => {
+    const r = Math.min(1, (now - start) / duration);
+    const t = easing(r);
+    const x = B(t, 0), y = B(t, 1);
+    const ang = Math.atan2(D(t, 1), D(t, 0) || 0.0001);
+    el.style.transform = `translate(${x - size / 2}px, ${y - size / 2}px) rotate(${ang}rad)`;
+    if (fadeOut && r > 0.75) el.style.opacity = String(Math.max(0, (1 - r) / 0.25));
+    if (trail && now - lastPuff > 45 && r > 0.04 && r < 0.96) {
+      lastPuff = now;
+      puff(x - Math.cos(ang) * size * 0.5, y - Math.sin(ang) * size * 0.5, size * (0.22 + Math.random() * 0.12));
+    }
+    if (r < 1) requestAnimationFrame(step);
+    else if (el.parentNode) el.parentNode.removeChild(el);
+  };
+  requestAnimationFrame(step);
+}
+
+// Despega desde un botón: carretea, se eleva y sale por arriba a la derecha.
+function takeoff(rect) {
+  const vw = window.innerWidth;
+  const y = rect.top + rect.height / 2;
+  const x = rect.left + 36;
+  flight([[x, y], [x + rect.width * 0.55, y], [vw * 0.9, y - 110], [vw + 90, y - 380]],
+    { duration: 1800, size: 50, easing: (t) => t * t * (0.35 + 0.65 * t) });
+}
+
+// Aterriza sobre la tarjeta de inicio: baja desde la izquierda, toca y frena.
+function landOnHero() {
+  const hero = $('#hero');
+  if (!hero || hero.hidden || ui.tab !== 'nuevo') return;
+  const r = hero.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > window.innerHeight) return;
+  const vw = window.innerWidth;
+  const ground = r.bottom - 12;
+  flight([[-60, r.top - 70], [vw * 0.22, r.top - 30], [vw * 0.36, ground], [vw * 0.72, ground]],
+    { duration: 2300, size: 48, easing: (t) => 1 - Math.pow(1 - t, 2.6), fadeOut: true });
+}
+
 /* ---------------- Navegación ---------------- */
 
 function setTab(tab) {
@@ -588,8 +653,17 @@ function submitForm() {
   } else {
     celebrate(TYPES[record.type].category && record.category ? record.category : record.type, '¡Guardado!', fmt(amount));
   }
-  burst(btn.left + btn.width / 2, btn.top + btn.height / 2, { count: settled ? 40 : 22, spread: settled ? 190 : 130, size: [10, 20] });
-  if (wasEditing) setTab('movs');
+  burst(btn.left + btn.width / 2, btn.top + btn.height / 2, { count: settled ? 40 : 16, spread: settled ? 190 : 110, size: [10, 18] });
+  if (wasEditing) { setTab('movs'); return; }
+  if (TYPES[record.type].flow === 'in') {
+    // Entra dinero: el avión aterriza en tu tarjeta de inicio.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(landOnHero, 450);
+  } else {
+    // Sale dinero: el avión despega desde el botón.
+    takeoff(btn);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 900);
+  }
 }
 
 function deleteCurrent() {
@@ -639,7 +713,7 @@ function renderMovements() {
     monthOf(m.date) === ui.month && (!ui.filterCard || m.cardId === ui.filterCard)));
 
   if (!list.length) {
-    $('#movList').innerHTML = `<div class="empty">No hay movimientos en ${esc(monthLabel(ui.month))}.</div>`;
+    $('#movList').innerHTML = `<div class="empty">${icon('avion')}<b>Pista despejada</b>No hay movimientos en ${esc(monthLabel(ui.month))}.</div>`;
     return;
   }
   const groups = new Map();
@@ -663,7 +737,7 @@ function renderDebts() {
     <div class="stat"><div class="k">Debes</div><div class="v out">${fmt(iOwe)}</div></div>`;
 
   if (!people.length) {
-    $('#debtList').innerHTML = `<div class="empty">Aún no hay deudas.<br>Usa “Pagué por alguien” o “Alguien pagó por mí” al registrar.</div>`;
+    $('#debtList').innerHTML = `<div class="empty">${icon('tab_deudas')}<b>Sin deudas</b>Usa “Pagué por alguien” o “Alguien pagó por mí” al registrar.</div>`;
     return;
   }
 
@@ -689,7 +763,7 @@ function renderDebts() {
   };
 
   $('#debtList').innerHTML =
-    (open.length ? open.map(personBlock).join('') : '<div class="empty">Estás a mano con todos. 🎉</div>') +
+    (open.length ? open.map(personBlock).join('') : `<div class="empty">${icon('avion')}<b>Cielo despejado</b>Estás a mano con todos.</div>`) +
     (settled.length ? `<h2>A mano</h2>${settled.map(personBlock).join('')}` : '');
 }
 
@@ -731,7 +805,7 @@ function renderSummary() {
     </div>`;
 
   if (!ms.length) {
-    $('#summary').innerHTML = `<div class="empty">Sin movimientos en ${esc(monthLabel(ui.month))}.</div>`;
+    $('#summary').innerHTML = `<div class="empty">${icon('avion')}<b>Pista despejada</b>Sin movimientos en ${esc(monthLabel(ui.month))}.</div>`;
     return;
   }
 
@@ -1025,6 +1099,8 @@ function init() {
     if (t) burst(e.clientX, e.clientY, { count: 6, spread: 34, size: [7, 12], duration: 550 });
   });
   bind();
+  $('.sky .jet').innerHTML = icon('avion');
+  setTimeout(landOnHero, 700);
   resetForm(false);
   setTab('nuevo');
 

@@ -120,6 +120,15 @@ const ICONS = {
     <path class="a" d="M9.2 13.2c4.4 1.6 9.2 1.6 13.6 0a8 8 0 0 1 .9 2.6c-5 1.6-10.4 1.6-15.4 0a8 8 0 0 1 .9-2.6z"/>
     <path class="l" d="M2.6 22.8c1.6 1.3 7 .2 13-2.3"/>
     ${sp(27, 5, 2.6)}<circle class="s" cx="5" cy="7" r="1.1"/>`,
+  avion: () => `
+    <path class="a o" d="M6.5 14.2L4.6 7.6h3.3l4.4 6"/>
+    <path class="f o" d="M3.8 17.2c0-2.1 1.6-3.6 4.2-3.6h13.2c3.1 0 5.6 1.5 6.8 3.6-1.2 2.1-3.7 3.6-6.8 3.6H8c-2.6 0-4.2-1.5-4.2-3.6z"/>
+    <path class="h o" d="M12.5 17.8L9.4 25.6h3.8l6-7.8z"/>
+    <path class="c o" d="M23 13.9c1.9.4 3.5 1.4 4.6 2.8h-5.2z"/>
+    <circle class="c o" cx="13.4" cy="16.3" r="1.15"/><circle class="c o" cx="17.2" cy="16.3" r="1.15"/>
+    <path class="l" d="M29.8 12.6v9.2"/><circle class="s o" cx="28.7" cy="17.2" r="1.3"/>
+    ${sp(9, 4.2, 2.4)}`,
+  viajes: () => ICONS.avion(),
   otros: () => `
     <path class="s o" d="${star5(16, 17, 11, 5)}"/>
     ${sp(27.5, 5, 2.4)}${sp(4.5, 26.5, 2)}`,

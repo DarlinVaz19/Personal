@@ -13,6 +13,7 @@ Web app instalable en el celular (PWA) para registrar gastos en MXN.
 - **Privacidad:** los datos se guardan **solo en el teléfono** (localStorage). Nada se sube al repo ni a ningún servidor.
 - **Temas:** estilo diario con nubes y estrellas: *Cielo* (atardecer pastel) y *Noche estrellada*. *Automático* (el predeterminado) usa Cielo de día y Noche estrellada en modo oscuro. También hay Menta, Sakura, Lavanda, Arena, Océano, Medianoche y Grafito.
 - **Iconos y animaciones:** iconos propios estilo cielo (`icons.js`), destellos al tocar, lluvia de estrellas y tarjeta de celebración al guardar, celebración especial al quedar "a mano" con alguien y montos que suben contando.
+- **Aviones ✈:** al registrar un gasto un avioncito despega desde el botón; cuando entra dinero (o al abrir la app) aterriza en la tarjeta de inicio. Un avión cruza el cielo de vez en cuando. Categoría *Viajes*.
 - **Foto:** en *Ajustes → Foto* eliges una imagen de tu carrete para el fondo y/o la tarjeta de inicio. Se guarda solo en el teléfono.
 - **Respaldo:** en *Ajustes → Exportar respaldo (.json)*. Se importa en el mismo lugar. También se puede exportar a CSV para Excel.
 
