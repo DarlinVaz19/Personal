@@ -20,7 +20,7 @@
 /* Gráfica de la semana */
 .bars7 { --plot: 1.4px; position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; padding-top: 22px; }
 .goal-line { position: absolute; left: 0; right: 0; bottom: calc(22px + var(--goal) * var(--plot)); border-top: 2px dashed var(--accent); opacity: .6; pointer-events: none; }
-.goal-line em { position: absolute; right: 0; top: -18px; font-size: 11px; font-style: normal; color: var(--accent); font-weight: 700; }
+.goal-line em { position: absolute; left: 0; top: -18px; font-size: 11px; font-style: normal; color: var(--accent); font-weight: 700; }
 .b7 { position: relative; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
 .b7-bar {
   width: 70%; height: calc(var(--h) * var(--plot)); min-height: 4px; border-radius: 10px 10px 4px 4px;

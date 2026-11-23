@@ -99,33 +99,60 @@ function parseWatch(text) {
     if (parts.length < 3) continue;
     const a = parseWhen(parts[0]), b = parseWhen(parts[1]), st = stageOf(parts.slice(2).join(' '));
     if (!a || !b || !st || b <= a) continue;
-    samples.push({ a, b, st });
+    samples.push({ a: a.getTime(), b: b.getTime(), st });
   }
-  // Agrupa por noche: la fecha "de la mañana" (se suman 12 h al inicio).
-  const groups = new Map();
+  samples.sort((x, y) => x.a - y.a);
+
+  // Bloques de sueño: muestras separadas por menos de 2 h pertenecen al mismo bloque.
+  const GAP = 2 * 3600000;
+  const blocks = [];
   for (const s of samples) {
-    const key = isoOf(new Date(s.a.getTime() + 12 * 3600000));
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(s);
+    const cur = blocks[blocks.length - 1];
+    if (cur && s.a - cur.end <= GAP) { cur.list.push(s); cur.end = Math.max(cur.end, s.b); }
+    else blocks.push({ list: [s], end: s.b });
   }
-  const nights = {};
-  for (const [key, list] of groups) {
-    const staged = list.filter((s) => ['deep', 'core', 'rem'].includes(s.st));
-    const asleep = staged.length ? staged : list.filter((s) => s.st === 'asleep');
-    if (!asleep.length) continue;
+
+  const ASLEEP = ['asleep', 'core', 'deep', 'rem'];
+  const sessions = [];
+  for (const blk of blocks) {
+    const sleep = blk.list.filter((s) => ASLEEP.includes(s.st));
+    if (!sleep.length) continue;
+    const iv = (id) => blk.list.filter((s) => s.st === id).map((s) => [s.a, s.b]);
+    const staged = sleep.some((s) => s.st !== 'asleep');
     const stages = {};
     for (const id of ['deep', 'core', 'rem', 'awake']) {
-      const iv = list.filter((s) => s.st === id).map((s) => [s.a.getTime(), s.b.getTime()]);
-      if (iv.length) stages[id] = Math.round(unionMinutes(iv));
+      const v = iv(id);
+      if (v.length) stages[id] = Math.round(unionMinutes(v));
     }
-    const minutes = Math.round(unionMinutes(asleep.map((s) => [s.a.getTime(), s.b.getTime()])));
-    const start = new Date(Math.min(...asleep.map((s) => s.a.getTime())));
-    const end = new Date(Math.max(...asleep.map((s) => s.b.getTime())));
-    nights[key] = {
+    // Si hay partes sin fase ("Dormido"), cuentan como núcleo para que la barra cuadre.
+    if (staged) {
+      const plain = iv('asleep');
+      if (plain.length) stages.core = (stages.core || 0) + Math.round(unionMinutes(plain));
+    }
+    const start = new Date(Math.min(...sleep.map((s) => s.a)));
+    const end = new Date(Math.max(...sleep.map((s) => s.b)));
+    sessions.push({
+      key: isoOf(end),
       bed: `${pad(start.getHours())}:${pad(start.getMinutes())}`,
       wake: `${pad(end.getHours())}:${pad(end.getMinutes())}`,
-      minutes, stages: staged.length ? stages : (stages.awake ? { awake: stages.awake } : null), source: 'watch',
-    };
+      minutes: Math.round(unionMinutes(sleep.map((s) => [s.a, s.b]))),
+      stages: staged ? stages : (stages.awake ? { awake: stages.awake } : null),
+    });
+  }
+
+  // Por día: el bloque más largo es la noche; los demás son siestas.
+  const nights = {};
+  for (const s of sessions) {
+    const n = nights[s.key];
+    if (!n) { nights[s.key] = { ...s, naps: [], source: 'watch' }; continue; }
+    if (s.minutes > n.minutes) {
+      nights[s.key] = { ...s, naps: [...n.naps, { bed: n.bed, wake: n.wake, minutes: n.minutes }], source: 'watch' };
+    } else n.naps.push({ bed: s.bed, wake: s.wake, minutes: s.minutes });
+  }
+  for (const n of Object.values(nights)) {
+    delete n.key;
+    n.napMinutes = n.naps.reduce((a, x) => a + x.minutes, 0);
+    if (!n.naps.length) { delete n.naps; delete n.napMinutes; }
   }
   return { nights, samples: samples.length };
 }
@@ -287,7 +314,7 @@ function renderHero(animate) {
     <span class="moon">${icon(q ? q.icon : 'mod_sueno')}</span>
     <div class="k">${esc(label)}</div>
     <div class="v" id="heroH">${hm(n.minutes)}</div>
-    <div class="meta"><span>${esc(n.bed)} → ${esc(n.wake)}</span><span>${q ? esc(q.name) : ''}</span><span>${Math.round(n.minutes / goal * 100)}% de tu meta</span></div>
+    <div class="meta"><span>${esc(n.bed)} → ${esc(n.wake)}</span><span>${q ? esc(q.name) : ''}</span><span>${Math.round(n.minutes / goal * 100)}% de tu meta</span>${n.napMinutes ? `<span>+ siesta ${hm(n.napMinutes)}</span>` : ''}</div>
     ${stageBar(n)}`;
   if (animate) replay(hero, 'bump');
 }
@@ -329,7 +356,7 @@ function renderNights() {
     const q = qOf(n.quality);
     return `<button type="button" class="item" data-night="${d}" style="--i:${i}">
       <span class="bubble">${icon(q ? q.icon : 'mod_sueno')}${n.source === 'watch' ? `<span class="src">${icon('reloj')}</span>` : ''}</span>
-      <span class="main"><div class="t">${esc(dayLabel(d))}</div><div class="s">${esc(n.bed)} → ${esc(n.wake)}${q ? ' · ' + esc(q.name) : ''}${n.note ? ' · ' + esc(n.note) : ''}</div></span>
+      <span class="main"><div class="t">${esc(dayLabel(d))}</div><div class="s">${esc(n.bed)} → ${esc(n.wake)}${q ? ' · ' + esc(q.name) : ''}${n.napMinutes ? ' · siesta ' + hm(n.napMinutes) : ''}${n.note ? ' · ' + esc(n.note) : ''}</div></span>
       <span class="amt">${hm(n.minutes)}</span>
     </button>`;
   }).join('')}</div>`;
