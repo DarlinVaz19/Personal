@@ -709,3 +709,13 @@ body.sheet-open { overflow: hidden; }
 .badge { display: inline-block; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; background: var(--accent-soft); color: var(--text); white-space: nowrap; }
 .badge.late { background: color-mix(in srgb, var(--out) 18%, transparent); color: var(--out); }
 .badge.soon { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+
+/* Segundo avión del fondo: más pequeño, más bajo y de derecha a izquierda */
+.sky i.jet.jet2 { top: 62%; left: auto; right: -60px; width: 24px; height: 24px; opacity: .6; animation: jetCross2 56s linear infinite 22s; }
+.sky i.jet.jet2 .ic { width: 24px; height: 24px; transform: scaleX(-1) rotate(-4deg); }
+.sky i.jet.jet2::before { right: auto; left: 85%; width: 180px; background: linear-gradient(270deg, transparent, rgba(255, 255, 255, .8)); }
+@keyframes jetCross2 {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(calc(-100vw - 300px), -40px); }
+  100% { transform: translate(calc(-100vw - 300px), -40px); }
+}

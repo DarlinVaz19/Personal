@@ -284,8 +284,11 @@ function puff(x, y, size = 10) {
 }
 
 // Vuela un jet por una curva de 4 puntos; la nariz sigue la curva.
+// Aviones al frente (despegues y aterrizajes): apagados salvo que se activen en Ajustes.
+function frontPlanes() { return settings.data.planes === 'todos' && !reduceMotion.matches; }
+
 function flight(points, { duration = 1700, size = 40, easing = (t) => t, trail = true, fadeOut = false } = {}) {
-  if (reduceMotion.matches) return;
+  if (!frontPlanes()) return;
   const el = document.createElement('span');
   el.className = 'plane-fly';
   el.style.width = el.style.height = `${size}px`;
@@ -338,7 +341,11 @@ function landOn(el) {
 
 // Ir a otra sección: el jet despega desde lo que tocaste y luego cambia de página.
 function navigate(url, fromEl) {
-  if (reduceMotion.matches || !fromEl) { location.href = url; return; }
+  if (!frontPlanes() || !fromEl) {
+    if (fromEl && !reduceMotion.matches) burstFrom(fromEl, { count: 8, spread: 50, size: [7, 12] });
+    setTimeout(() => { location.href = url; }, fromEl && !reduceMotion.matches ? 160 : 0);
+    return;
+  }
   takeoff(fromEl, { duration: 1100 });
   burstFrom(fromEl, { count: 10, spread: 70, size: [8, 14] });
   setTimeout(() => { location.href = url; }, 620);
@@ -399,10 +406,10 @@ function restoreBackup(obj) {
 function pageShell() {
   // Capas comunes: cielo, foto, celebración y aviso.
   if (!$('.sky')) document.body.insertAdjacentHTML('afterbegin',
-    '<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i class="jet"></i></div><div class="photo-bg" aria-hidden="true"></div>');
+    '<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i class="jet"></i><i class="jet jet2"></i></div><div class="photo-bg" aria-hidden="true"></div>');
   if (!$('#celebrate')) document.body.insertAdjacentHTML('beforeend', '<div class="celebrate" id="celebrate"></div>');
   if (!$('#toast')) document.body.insertAdjacentHTML('beforeend', '<div class="toast" id="toast" role="status" aria-live="polite"></div>');
-  $('.sky .jet').innerHTML = icon('avion');
+  for (const j of $$('.sky .jet')) j.innerHTML = icon('avion');
 }
 
 function initPage({ land } = {}) {

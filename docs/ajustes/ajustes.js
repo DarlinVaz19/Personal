@@ -50,7 +50,13 @@ function renderBackup() {
   } else $('#storageInfo').textContent = `Usando unos ${used} KB.`;
 }
 
-function render() { renderThemes(); renderPhoto(); renderBackup(); }
+function renderPlanes() {
+  const v = settings.data.planes === 'todos' ? 'todos' : 'fondo';
+  $('#planes').innerHTML = [['fondo', 'Solo en el fondo'], ['todos', 'También despegues y aterrizajes']].map(([id, n]) =>
+    `<button type="button" class="chip" data-planes="${id}" aria-pressed="${v === id}">${icon('avion')}${n}</button>`).join('');
+}
+
+function render() { renderThemes(); renderPlanes(); renderPhoto(); renderBackup(); }
 
 async function exportJson() {
   settings.data.lastBackup = Date.now();
@@ -97,6 +103,15 @@ function bind() {
     applyTheme();
     renderThemes();
     replay($(`#themes [data-theme-id="${settings.data.theme}"]`), 'just');
+  });
+
+  $('#planes').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-planes]');
+    if (!b) return;
+    settings.data.planes = b.dataset.planes;
+    settings.save();
+    renderPlanes();
+    if (settings.data.planes === 'todos') takeoff(b);
   });
 
   $('#photoControls').addEventListener('click', (e) => {
