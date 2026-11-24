@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tu mes · Mi cielo</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#efe6f3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi cielo">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="resumen.css">
+<script src="../shared/theme-early.js"></script>
+</head>
+<body class="no-tabbar">
+<header class="topbar">
+  <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
+  <div class="titles">
+    <h1>Tu mes</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+</header>
+
+<main>
+  <div class="month-nav" data-month-nav></div>
+  <div class="stories" id="stories"></div>
+  <div class="dots" id="dots"></div>
+  <p class="muted small swipe-hint">Desliza para ver más ›</p>
+</main>
+
+<script src="../shared/icons.js"></script>
+<script src="../shared/core.js"></script>
+<script src="resumen.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@ const ROOT = document.documentElement.dataset.root || './';
 const SETTINGS_KEY = 'cielo.ajustes';
 const PHOTO_KEY = 'cielo.foto';
 /* Claves que entran en el respaldo general. */
-const DATA_KEYS = ['finanzas.v1', 'ideas.v1', 'gatos.v1', 'habitos.v1', 'diario.v1', 'sueno.v1', 'compras.v1', SETTINGS_KEY];
+const DATA_KEYS = ['finanzas.v1', 'ideas.v1', 'gatos.v1', 'habitos.v1', 'diario.v1', 'sueno.v1', 'compras.v1', 'fechas.v1', SETTINGS_KEY];
 
 /* ---------------- Utilidades ---------------- */
 
@@ -401,6 +401,108 @@ function restoreBackup(obj) {
   return Object.keys(data).length;
 }
 
+/* ---------------- Candado con PIN ---------------- */
+// El PIN se guarda como huella (hash) con sal; nunca el número tal cual.
+// Es para que nadie curiosee la app si toma tu teléfono; no cifra los datos.
+
+const PIN_KEY = 'cielo.pin';
+const UNLOCK_KEY = 'cielo.unlocked';
+const AWAY_MS = 60000; // al volver después de 1 minuto, se vuelve a pedir
+
+function pinData() { try { return JSON.parse(localStorage.getItem(PIN_KEY)); } catch (e) { return null; } }
+function hasPin() { return !!pinData()?.hash; }
+
+async function hashPin(pin, salt) {
+  const text = `${salt}:${pin}`;
+  if (crypto.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return `f${(h >>> 0).toString(16)}`;
+}
+
+async function setPin(pin) {
+  const salt = uid();
+  localStorage.setItem(PIN_KEY, JSON.stringify({ salt, hash: await hashPin(pin, salt) }));
+  sessionStorage.setItem(UNLOCK_KEY, '1');
+}
+async function checkPin(pin) {
+  const d = pinData();
+  return !!d && (await hashPin(pin, d.salt)) === d.hash;
+}
+function removePin() { localStorage.removeItem(PIN_KEY); }
+
+function isLocked() {
+  try { return hasPin() && sessionStorage.getItem(UNLOCK_KEY) !== '1'; } catch (e) { return hasPin(); }
+}
+
+function showLock() {
+  if ($('.lock-screen')) return;
+  document.documentElement.classList.add('locked');
+  const el = document.createElement('div');
+  el.className = 'lock-screen';
+  el.innerHTML = `
+    <div class="lock-box">
+      <span class="lock-ic">${icon('candado')}</span>
+      <h2>Mi cielo</h2>
+      <p id="lockMsg">Escribe tu PIN</p>
+      <div class="pin-dots" id="pinDots">${'<i></i>'.repeat(4)}</div>
+      <div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join('')}
+        <button type="button" class="kp-link" data-forgot>¿Olvidaste?</button><button type="button" data-k="0">0</button><button type="button" data-del aria-label="Borrar">⌫</button></div>
+    </div>`;
+  document.body.appendChild(el);
+  let pin = '', fails = 0, waitUntil = 0;
+  const dots = () => $$('#pinDots i', el).forEach((d, i) => d.classList.toggle('on', i < pin.length));
+  el.addEventListener('click', async (e) => {
+    if (e.target.closest('[data-forgot]')) {
+      alert('Por privacidad, el PIN no se puede recuperar. Si lo olvidaste, la única opción es borrar los datos de la app en este teléfono y restaurar un respaldo.');
+      if (prompt('Para borrar TODOS los datos y quitar el PIN, escribe BORRAR') === 'BORRAR') {
+        for (const k of [...DATA_KEYS, PHOTO_KEY, PIN_KEY]) localStorage.removeItem(k);
+        sessionStorage.removeItem(UNLOCK_KEY);
+        location.reload();
+      }
+      return;
+    }
+    if (Date.now() < waitUntil) return;
+    if (e.target.closest('[data-del]')) { pin = pin.slice(0, -1); dots(); return; }
+    const k = e.target.closest('[data-k]');
+    if (!k || pin.length >= 4) return;
+    pin += k.dataset.k;
+    dots();
+    if (pin.length < 4) return;
+    if (await checkPin(pin)) {
+      sessionStorage.setItem(UNLOCK_KEY, '1');
+      el.classList.add('open');
+      document.documentElement.classList.remove('locked');
+      burst(window.innerWidth / 2, window.innerHeight / 2, { count: 16, spread: 120 });
+      setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 450);
+    } else {
+      fails++;
+      replay($('.lock-box', el), 'shake');
+      pin = '';
+      setTimeout(dots, 250);
+      if (fails >= 5) {
+        waitUntil = Date.now() + 30000;
+        $('#lockMsg', el).textContent = 'Demasiados intentos. Espera 30 segundos.';
+        setTimeout(() => { fails = 0; $('#lockMsg', el).textContent = 'Escribe tu PIN'; }, 30000);
+      } else $('#lockMsg', el).textContent = 'PIN incorrecto';
+    }
+  });
+}
+
+function watchLock() {
+  document.addEventListener('visibilitychange', () => {
+    if (!hasPin()) return;
+    if (document.hidden) sessionStorage.setItem('cielo.away', String(Date.now()));
+    else {
+      const away = Number(sessionStorage.getItem('cielo.away') || 0);
+      if (away && Date.now() - away > AWAY_MS) { sessionStorage.removeItem(UNLOCK_KEY); showLock(); }
+    }
+  });
+}
+
 /* ---------------- Arranque de cada página ---------------- */
 
 function pageShell() {
@@ -414,6 +516,8 @@ function pageShell() {
 
 function initPage({ land } = {}) {
   pageShell();
+  if (isLocked()) showLock();
+  watchLock();
   applyTheme();
   applyPhoto();
   darkQuery.addEventListener?.('change', applyTheme);

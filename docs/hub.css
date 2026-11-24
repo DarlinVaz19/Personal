@@ -50,3 +50,27 @@
 
 .tile.wide { grid-column: 1 / -1; min-height: 0; padding: 16px 16px 16px 92px; }
 .tile.wide .tile-ic { top: 50%; margin-top: -32px; }
+
+/* "Hoy" */
+.today { display: grid; gap: 8px; }
+.today-row {
+  display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px 14px 8px 8px; box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); animation: rise .42s ease-out both; animation-delay: calc(var(--i) * 45ms);
+}
+.today-row:active { transform: scale(.98); }
+.today-row .bubble { width: 44px; height: 44px; }
+.today-row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.today-row .t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.today-row .s { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.today-row .chev { color: var(--muted); font-size: 22px; }
+.today-row.hot { border-color: color-mix(in srgb, var(--ic-heart) 55%, transparent); }
+.today-row.hot .s { color: var(--ic-heart); font-weight: 600; }
+.today-row.ok .s { color: var(--in); font-weight: 600; }
+
+.month-link {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0 0; padding: 14px;
+  border-radius: 18px; text-decoration: none; color: var(--accent); font-weight: 700;
+  background: var(--surface); border: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.month-link .ic { width: 28px; height: 28px; }

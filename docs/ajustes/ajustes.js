@@ -35,6 +35,7 @@ function renderBackup() {
   const g = p.data['gatos.v1']; if (g?.cats?.length) counts.push(`${g.cats.length} gatos`);
   const h = p.data['habitos.v1']; if (h?.habits?.length) counts.push(`${h.habits.length} hábitos`);
   const d = p.data['diario.v1']; if (d?.entries && Object.keys(d.entries).length) counts.push(`${Object.keys(d.entries).length} días en Mi día`);
+  const fe = p.data['fechas.v1']; if (fe?.events?.length) counts.push(`${fe.events.length} fechas importantes`);
   const sh = p.data['compras.v1']; if (sh?.items?.length) counts.push(`${sh.items.length} cosas en la lista de compras`);
   const sl = p.data['sueno.v1']; if (sl?.nights && Object.keys(sl.nights).length) counts.push(`${Object.keys(sl.nights).length} noches de sueño`);
   const last = settings.data.lastBackup;
@@ -56,7 +57,35 @@ function renderPlanes() {
     `<button type="button" class="chip" data-planes="${id}" aria-pressed="${v === id}">${icon('avion')}${n}</button>`).join('');
 }
 
-function render() { renderThemes(); renderPlanes(); renderPhoto(); renderBackup(); }
+function renderLock() {
+  $('#lockAdmin').innerHTML = hasPin()
+    ? `<div class="stack"><button type="button" class="btn" data-lock="change">${icon('candado', 'mini')} Cambiar PIN</button>
+       <button type="button" class="btn danger" data-lock="off">Quitar PIN</button></div>`
+    : `<button type="button" class="btn" data-lock="on">${icon('candado', 'mini')} Activar PIN</button>`;
+}
+
+function pinSheet(mode) {
+  const needOld = mode !== 'on';
+  const sheet = openSheet(`
+    <h3>${mode === 'on' ? 'Activar PIN' : mode === 'change' ? 'Cambiar PIN' : 'Quitar PIN'}</h3>
+    ${needOld ? '<div class="field"><label class="label" for="pOld">PIN actual</label><input id="pOld" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>' : ''}
+    ${mode !== 'off' ? `<div class="field"><label class="label" for="p1">Nuevo PIN (4 dígitos)</label><input id="p1" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+    <div class="field"><label class="label" for="p2">Repite el PIN</label><input id="p2" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div>` : ''}
+    <button type="button" class="btn primary" id="pSave">${mode === 'off' ? 'Quitar PIN' : 'Guardar PIN'}</button>`);
+  setTimeout(() => $('input', sheet)?.focus(), 300);
+  $('#pSave', sheet).addEventListener('click', async () => {
+    if (needOld && !(await checkPin($('#pOld', sheet).value))) { toast('El PIN actual no coincide'); return; }
+    if (mode === 'off') { removePin(); closeSheet(); renderLock(); toast('PIN quitado'); return; }
+    const a = $('#p1', sheet).value, b = $('#p2', sheet).value;
+    if (!/^\d{4}$/.test(a)) { toast('El PIN debe tener 4 números'); return; }
+    if (a !== b) { toast('Los PIN no coinciden'); return; }
+    await setPin(a);
+    closeSheet(); renderLock();
+    celebrate('candado', 'PIN activado', 'Guárdalo bien y exporta un respaldo');
+  });
+}
+
+function render() { renderThemes(); renderLock(); renderPlanes(); renderPhoto(); renderBackup(); }
 
 async function exportJson() {
   settings.data.lastBackup = Date.now();
@@ -103,6 +132,11 @@ function bind() {
     applyTheme();
     renderThemes();
     replay($(`#themes [data-theme-id="${settings.data.theme}"]`), 'just');
+  });
+
+  $('#lockAdmin').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-lock]');
+    if (b) pinSheet(b.dataset.lock);
   });
 
   $('#planes').addEventListener('click', (e) => {
@@ -158,7 +192,7 @@ function bind() {
   $('#wipe').addEventListener('click', () => {
     if (!confirm('¿Borrar TODO (finanzas, ideas, gatos, hábitos, diario y ajustes) de este teléfono? No se puede deshacer.')) return;
     if (prompt('Escribe BORRAR para confirmar') !== 'BORRAR') return;
-    for (const k of [...DATA_KEYS, PHOTO_KEY]) localStorage.removeItem(k);
+    for (const k of [...DATA_KEYS, PHOTO_KEY, PIN_KEY]) localStorage.removeItem(k);
     settings.reset();
     applyTheme(); applyPhoto(); render();
     toast('Datos borrados');

@@ -1,0 +1,53 @@
+/* ===== Resumen del mes (tarjetas para deslizar) ===== */
+.stories {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scrollbar-width: none; padding: 4px 0 8px; -webkit-overflow-scrolling: touch;
+}
+.stories::-webkit-scrollbar { display: none; }
+.story {
+  scroll-snap-align: center; position: relative; overflow: hidden; min-height: 470px; border-radius: 28px; padding: 26px 22px;
+  color: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, .25), transparent 40%),
+    var(--g, linear-gradient(160deg, var(--accent), var(--accent-2)));
+}
+.story::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .55;
+  background-image: var(--stars, none); background-size: 260px 260px;
+}
+.s-cover { --g: linear-gradient(165deg, #6c5fb8, #b46e9f 60%, #f2a58e); justify-content: center; }
+.s-fin { --g: linear-gradient(165deg, #3f7fb8, #6c5fb8); }
+.s-mood { --g: linear-gradient(165deg, #e08aa7, #f2b38e); }
+.s-sleep { --g: linear-gradient(165deg, #1b2150, #4b3d8f); }
+.s-hab { --g: linear-gradient(165deg, #2f8f7a, #6c5fb8); }
+.s-misc { --g: linear-gradient(165deg, #b0532c, #e08aa7); }
+.s-end { --g: linear-gradient(165deg, #6c5fb8, #1b2150); justify-content: center; text-align: center; }
+.story > * { position: relative; z-index: 1; }
+.story-ic { position: absolute !important; right: 18px; top: 18px; }
+.story-ic .ic { width: 64px; height: 64px; --ic-line: rgba(0, 0, 0, .25); animation: bob 4s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
+.s-cover .story-ic, .s-end .story-ic { position: relative !important; right: auto; top: auto; margin: 0 auto 14px; }
+.s-cover .story-ic .ic, .s-end .story-ic .ic { width: 96px; height: 96px; }
+.kicker { font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .14em; font-size: 11.5px; font-weight: 700; opacity: .85; }
+.story h3 { font-size: 34px; line-height: 1.1; margin: 10px 0 12px; font-weight: 700; }
+[data-style="journal"] .story h3 { font-family: var(--serif); font-weight: 500; font-size: 38px; }
+.s-end h3 { font-size: 26px; }
+[data-style="journal"] .s-end h3 { font-size: 30px; }
+.story p { margin: 18px 0 4px; font-size: 17px; opacity: .95; }
+.story .big { font-size: 44px; font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+[data-style="journal"] .story .big { font-family: var(--serif); font-weight: 500; font-size: 48px; }
+.pill { display: inline-block; align-self: flex-start; background: rgba(255, 255, 255, .2); border-radius: 999px; padding: 4px 12px; font-size: 14px !important; margin-top: 10px !important; }
+.facts { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; font-size: 15.5px; }
+.facts li { position: relative; display: block; background: rgba(255, 255, 255, .14); border-radius: 14px; padding: 11px 12px 11px 48px; line-height: 1.35; }
+.facts .ic.mini { position: absolute; left: 12px; top: 50%; margin-top: -13px; width: 26px; height: 26px; --ic-line: rgba(0, 0, 0, .25); }
+.big-facts { margin-top: 40px; font-size: 17px; }
+.s-end .facts { text-align: left; }
+blockquote { margin: 20px 0 0; padding: 14px 16px; border-radius: 16px; background: rgba(255, 255, 255, .18); font-size: 17px; }
+[data-style="journal"] blockquote { font-family: var(--serif); font-style: italic; font-size: 19px; }
+blockquote small { display: block; font-size: 12px; opacity: .8; margin-top: 6px; font-style: normal; font-family: system-ui, sans-serif; }
+.next-title { font-weight: 700; }
+.bye { font-size: 20px !important; font-weight: 700; margin-top: 22px !important; }
+.dots { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: width .25s, background .25s; }
+.dots i.on { width: 20px; border-radius: 4px; background: var(--accent); }
+.swipe-hint { text-align: center; margin-top: 6px; }

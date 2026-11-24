@@ -42,7 +42,96 @@ function stats() {
   const nights = read('sueno.v1')?.nights || {};
   const lastKey = Object.keys(nights).sort().pop();
   out.sleep = lastKey && daysBetween(lastKey, today) <= 1 ? nights[lastKey] : null;
+  // Próxima fecha importante (para el mosaico)
+  const evs = (read('fechas.v1')?.events || []).map((e) => ({ e, d: daysBetween(today, nextOccurrence(e, today)) })).filter((x) => x.d >= 0).sort((a, b) => a.d - b.d);
+  out.nextDate = evs[0] ? { name: evs[0].e.name, when: evs[0].d === 0 ? 'hoy' : evs[0].d === 1 ? 'mañana' : `en ${evs[0].d} días` } : null;
   return out;
+}
+
+
+/* ---------------- "Hoy": lo pendiente del día ---------------- */
+
+function nextOccurrence(ev, today) {
+  if (!ev.yearly) return ev.date;
+  const md = ev.date.slice(5);
+  let d = `${today.slice(0, 4)}-${md}`;
+  if (d < today) d = `${Number(today.slice(0, 4)) + 1}-${md}`;
+  return d;
+}
+
+function todayRows(s) {
+  const today = todayISO();
+  const rows = [];
+  const when = (n) => (n < 0 ? `hace ${-n} día${n === -1 ? '' : 's'}` : n === 0 ? 'hoy' : n === 1 ? 'mañana' : `en ${n} días`);
+
+  // Fechas importantes en las próximas 2 semanas
+  for (const ev of read('fechas.v1')?.events || []) {
+    const d = daysBetween(today, nextOccurrence(ev, today));
+    if (d < 0 || d > 14) continue;
+    const ic = ev.kind === 'cumple' ? 'pastel' : ev.kind === 'aniversario' ? 'aniversario' : ev.kind === 'gato' ? 'huella' : 'evento';
+    rows.push({ d, href: 'fechas/', icon: ic, text: ev.name, sub: d === 0 ? '¡Es hoy! ✦' : when(d), hot: d <= 2 });
+  }
+
+  // Cuidados de los gatos (próximos 7 días o vencidos)
+  const g = read('gatos.v1') || {};
+  for (const h of g.health || []) {
+    if (!h.next) continue;
+    const d = daysBetween(today, h.next);
+    if (d > 7 || d < -60) continue;
+    const cat = (g.cats || []).find((c) => c.id === h.catId);
+    if (!cat) continue;
+    rows.push({ d, href: 'gatos/', icon: 'vacuna', text: `${cat.name}: ${h.title || 'cuidado'}`, sub: d < 0 ? `venció ${when(d)}` : when(d), hot: d <= 1 });
+  }
+
+  // Hábitos de hoy
+  if (s.habitsTotal) {
+    const done = s.habitsDone >= s.habitsTotal;
+    rows.push({ d: 50, href: 'habitos/', icon: 'mod_habitos', text: done ? '¡Hábitos completos!' : `Hábitos: ${s.habitsDone} de ${s.habitsTotal}`, sub: done ? 'Día completo ✦' : `te falta${s.habitsTotal - s.habitsDone === 1 ? '' : 'n'} ${s.habitsTotal - s.habitsDone}`, ok: done });
+  }
+
+  // Mi día y sueño
+  if (!s.mood) rows.push({ d: 51, href: 'diario/', icon: 'mod_diario', text: '¿Cómo está tu cielo hoy?', sub: 'Registra tu día' });
+  const nights = read('sueno.v1')?.nights || {};
+  if (!nights[today] && new Date().getHours() >= 6) rows.push({ d: 52, href: 'sueno/', icon: 'mod_sueno', text: 'Tu sueño de anoche', sub: 'Impórtalo del Apple Watch' });
+
+  // Lista de compras
+  const shop = (read('compras.v1')?.items || []).filter((i) => !i.done);
+  if (shop.length) {
+    const names = shop.slice(0, 2).map((i) => i.name).join(', ');
+    rows.push({ d: 53, href: 'compras/', icon: 'mod_compras', text: `${shop.length} por comprar`, sub: names + (shop.length > 2 ? ` y ${shop.length - 2} más` : '') });
+  }
+
+  // Deudas abiertas
+  const fin = read('finanzas.v1');
+  if (fin?.movements?.length) {
+    const bal = {};
+    const delta = { prestado: (m) => m.owed ?? m.amount, pago: (m) => m.amount, preste: (m) => m.amount, debo: (m) => -m.amount, cobro: (m) => -m.amount, meprestaron: (m) => -m.amount };
+    for (const m of fin.movements) if (m.person && delta[m.type]) { const k = m.person.trim().toLowerCase(); bal[k] = (bal[k] || 0) + delta[m.type](m); }
+    const owed = Object.values(bal).filter((v) => v > 0.004).reduce((a, v) => a + v, 0);
+    const owe = Object.values(bal).filter((v) => v < -0.004).reduce((a, v) => a - v, 0);
+    if (owed || owe) rows.push({ d: 54, href: 'finanzas/', icon: 'tab_deudas', text: 'Deudas', sub: [owed && `te deben ${fmt(owed)}`, owe && `debes ${fmt(owe)}`].filter(Boolean).join(' · ') });
+  }
+
+  // Resumen del mes: los últimos 3 días del mes y los primeros 5 del siguiente
+  const day = Number(today.slice(8, 10));
+  const last = new Date(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 0).getDate();
+  if (day >= last - 2 || day <= 5) {
+    const ym = day <= 5 ? shiftMonth(monthOf(today), -1) : monthOf(today);
+    rows.push({ d: -1, href: `resumen/?m=${ym}`, icon: 'trofeo', text: `Tu resumen de ${monthLabel(ym).split(' ')[0]}`, sub: 'Ya está listo ✦', hot: true });
+  }
+  return rows.sort((a, b) => a.d - b.d);
+}
+
+function renderToday(s) {
+  const rows = todayRows(s);
+  $('#today').innerHTML = rows.length ? `
+    <h2>Hoy</h2>
+    <div class="today">${rows.map((r, i) => `
+      <a class="today-row ${r.hot ? 'hot' : ''} ${r.ok ? 'ok' : ''}" href="${r.href}" data-nav style="--i:${i}">
+        <span class="bubble">${icon(r.icon)}</span>
+        <span class="main"><span class="t">${esc(r.text)}</span><span class="s">${esc(r.sub)}</span></span>
+        <span class="chev">›</span>
+      </a>`).join('')}</div>` : '';
 }
 
 function greeting() {
@@ -81,12 +170,13 @@ function renderTiles(s) {
     gatosSub = `${cat ? cat.name + ': ' : ''}${d < 0 ? 'cuidado pendiente' : d === 0 ? 'cuidado hoy' : `cuidado en ${d} día${d === 1 ? '' : 's'}`}`;
   }
   const tiles = [
-    { href: 'finanzas/', icon: 'mod_finanzas', name: 'Finanzas', sub: `${fmt(s.monthSpent)} este mes`, wide: true },
+    { href: 'finanzas/', icon: 'mod_finanzas', name: 'Finanzas', sub: `${fmt(s.monthSpent)} este mes` },
     { href: 'ideas/', icon: 'mod_ideas', name: 'Ideas', sub: s.ideasOpen ? `${s.ideasOpen} idea${s.ideasOpen === 1 ? '' : 's'} en el tablero` : 'Tu tablero de notas' },
     { href: 'gatos/', icon: 'mod_gatos', name: 'Gatos', sub: gatosSub },
     { href: 'habitos/', icon: 'mod_habitos', name: 'Hábitos', sub: s.habitsTotal ? `Hoy: ${s.habitsDone} de ${s.habitsTotal}` : 'Crea tus hábitos' },
     { href: 'diario/', icon: 'mod_diario', name: 'Mi día', sub: s.mood ? `Hoy: ${MOODS[s.mood]}` : '¿Cómo está tu cielo hoy?' },
     { href: 'compras/', icon: 'mod_compras', name: 'Compras', sub: s.shopping ? `${s.shopping} por comprar` : 'Tu lista de compras' },
+    { href: 'fechas/', icon: 'mod_fechas', name: 'Fechas', sub: s.nextDate ? `${s.nextDate.name} · ${s.nextDate.when}` : 'Cumpleaños y eventos' },
     { href: 'sueno/', icon: 'mod_sueno', name: 'Sueño', sub: s.sleep ? `Anoche: ${Math.floor(s.sleep.minutes / 60)} h ${Math.round(s.sleep.minutes % 60)} min` : '¿Cómo dormiste?' },
   ];
   $('#tiles').innerHTML = tiles.map((t, i) => `
@@ -101,6 +191,7 @@ function init() {
   $('#title').textContent = `${greeting()} ✦`;
   const s = stats();
   renderHero(s);
+  renderToday(s);
   renderTiles(s);
   initPage({ land: '#hero' });
 }

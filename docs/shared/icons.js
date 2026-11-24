@@ -220,6 +220,37 @@ const ICONS = {
     <path class="a o" d="M12 7.5l13-3v4l-13 3z"/>
     ${sp(5.5, 8, 2.4)}`,
 
+  mod_fechas: () => `
+    <rect class="f o" x="4" y="7" width="24" height="21" rx="4"/>
+    <path class="h o" d="M4 11a4 4 0 0 1 4-4h16a4 4 0 0 1 4 4v3H4z"/>
+    <path class="l" d="M10 4v5.5M22 4v5.5"/>
+    <path class="h o" d="${heart(16, 21, 3.4)}"/>
+    ${sp(27.5, 4, 2.4)}`,
+  pastel: () => `
+    <path class="l" d="M10 9.5V7M16 9V6.5M22 9.5V7"/>
+    <path class="s" d="M10 4.6q1 1.2 0 2.2-1-1 0-2.2zM16 4.1q1 1.2 0 2.2-1-1 0-2.2zM22 4.6q1 1.2 0 2.2-1-1 0-2.2z"/>
+    <rect class="a o" x="7" y="9.5" width="18" height="7" rx="2"/>
+    <rect class="f o" x="4.5" y="16" width="23" height="11" rx="2.5"/>
+    <path class="h" d="M4.8 19.2c2.2 1.6 3.8 1.6 5.5 0s3.8-1.6 5.6 0 3.8 1.6 5.6 0 3.6-1.6 5.6 0v-1.5c-2-1.6-3.8-1.6-5.6 0s-3.8 1.6-5.6 0-3.8-1.6-5.6 0-3.3 1.6-5.5 0z"/>`,
+  aniversario: () => `
+    <path class="h o" d="${heart(12, 15, 7.5)}"/>
+    <path class="f o" d="${heart(20.5, 19, 6.5)}"/>
+    ${sp(26.5, 5.5, 2.6)}`,
+  evento: () => `
+    <path class="s o" d="${star5(16, 16.5, 11.5, 5.2)}"/>
+    <circle class="h" cx="16" cy="16.5" r="2.2"/>`,
+  candado: () => `
+    <path class="l" d="M10.5 14v-3.5a5.5 5.5 0 0 1 11 0V14" stroke-width="2.2"/>
+    <rect class="f o" x="6.5" y="14" width="19" height="14" rx="4"/>
+    <path class="h o" d="${heart(16, 20.6, 2.6)}"/>
+    ${sp(27, 6, 2.4)}`,
+  trofeo: () => `
+    <path class="l" d="M9 8H5.5a4 4 0 0 0 4.5 5.5M23 8h3.5a4 4 0 0 1-4.5 5.5"/>
+    <path class="s o" d="M9 5h14v6a7 7 0 0 1-14 0z"/>
+    <path class="a o" d="M14 17.5h4v4h-4z"/>
+    <rect class="f o" x="10" y="21.5" width="12" height="5.5" rx="1.6"/>
+    <path class="h o" d="${heart(16, 10, 2)}"/>`,
+
   /* ---- Estados de ánimo (cielo) ---- */
   mood_radiante: () => `
     <path class="l" d="M16 2.5v3.6M16 25.9v3.6M2.5 16h3.6M25.9 16h3.6M6.5 6.5l2.6 2.6M22.9 22.9l2.6 2.6M6.5 25.5l2.6-2.6M22.9 9.1l2.6-2.6"/>
