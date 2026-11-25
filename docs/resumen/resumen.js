@@ -194,9 +194,9 @@ function render() {
 
   if (ot.ideasNew || ot.ideasDone || ot.shopDone || ot.care || ot.catSpent) {
     cards.push(card('s-misc', 'mod_ideas', `
-      <small class="kicker">IDEAS, COMPRAS Y GATOS</small>
+      <small class="kicker">VISION BOARD, COMPRAS Y GATOS</small>
       <ul class="facts big-facts">
-        ${ot.ideasNew ? `<li>${icon('mod_ideas', 'mini')}<b>${ot.ideasNew}</b> idea${ot.ideasNew === 1 ? '' : 's'} nueva${ot.ideasNew === 1 ? '' : 's'}${ot.ideasDone ? ` y <b>${ot.ideasDone}</b> cumplida${ot.ideasDone === 1 ? '' : 's'}` : ''}</li>` : ''}
+        ${ot.ideasNew ? `<li>${icon('mod_ideas', 'mini')}<b>${ot.ideasNew}</b> nota${ot.ideasNew === 1 ? '' : 's'} nueva${ot.ideasNew === 1 ? '' : 's'} en tu vision board${ot.ideasDone ? ` y <b>${ot.ideasDone}</b> cumplida${ot.ideasDone === 1 ? '' : 's'}` : ''}</li>` : ''}
         ${ot.shopDone ? `<li>${icon('mod_compras', 'mini')}<b>${ot.shopDone}</b> cosa${ot.shopDone === 1 ? '' : 's'} tachada${ot.shopDone === 1 ? '' : 's'} de tu lista</li>` : ''}
         ${ot.care ? `<li>${icon('vacuna', 'mini')}<b>${ot.care}</b> cuidado${ot.care === 1 ? '' : 's'} para tus gatos</li>` : ''}
         ${ot.catSpent ? `<li>${icon('huella', 'mini')}Consentiste a tus gatos con <b>${fmt(ot.catSpent)}</b></li>` : ''}
@@ -214,7 +214,7 @@ function render() {
     <small class="kicker">TU MES EN UNA FRASE</small>
     <h3>${hasAny ? esc((phrase.length ? phrase.join(', ') : `un mes con ${[fin && 'finanzas al día', hb && 'hábitos', md && 'días escritos'].filter(Boolean).join(' y ')}`).replace(/^./, (c) => c.toUpperCase())) + ' ✦' : 'Aún no hay datos de este mes'}</h3>
     ${up.length ? `<p class="next-title">Lo que viene en ${esc(monthName(shiftMonth(ym, 1)))}</p>
-      <ul class="facts">${up.map((e) => `<li>${icon(e.kind === 'cumple' ? 'pastel' : e.kind === 'aniversario' ? 'aniversario' : e.kind === 'gato' ? 'huella' : 'evento', 'mini')}<b>${Number(e.date.slice(8, 10))}</b> · ${esc(e.name)}</li>`).join('')}</ul>` : ''}
+      <ul class="facts">${up.map((e) => `<li>${icon(e.kind === 'cumple' ? 'pastel' : e.kind === 'aniversario' ? 'aniversario' : e.kind === 'gato' ? 'huella' : e.kind === 'tablero' ? 'mod_ideas' : 'evento', 'mini')}<b>${Number(e.date.slice(8, 10))}</b> · ${esc(e.name)}</li>`).join('')}</ul>` : ''}
     <p class="bye">¡Buen vuelo! ✈</p>`));
 
   $('#stories').innerHTML = cards.join('');

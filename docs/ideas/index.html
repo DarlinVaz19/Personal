@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ideas · Mi cielo</title>
+<title>Vision board · Mi cielo</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#efe6f3">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,20 +20,22 @@
 <header class="topbar">
   <a class="home-btn" href="../" data-nav aria-label="Volver al inicio"><span data-icon="casa"></span></a>
   <div class="titles">
-    <h1>Ideas</h1>
+    <h1>Vision board</h1>
     <p class="subtitle" id="subtitle"></p>
   </div>
 </header>
 
 <main>
-  <div class="field search">
-    <input id="search" type="search" placeholder="Buscar en tus ideas…" autocomplete="off" aria-label="Buscar">
+  <div class="board-tools">
+    <input id="search" type="search" placeholder="Buscar en tu tablero…" autocomplete="off" aria-label="Buscar">
+    <button type="button" class="btn small" id="arrange" title="Acomodar las notas">Acomodar</button>
   </div>
   <div class="chips filters" id="filters"></div>
+  <p class="board-hint muted small" id="hint">Arrastra las notas a donde quieras. Toca una para girarla, editarla o marcarla.</p>
   <div class="board" id="board"></div>
 </main>
 
-<button type="button" class="fab" id="add" aria-label="Nueva idea"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<button type="button" class="fab" id="add" aria-label="Nueva nota"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 
 <script src="../shared/icons.js"></script>
 <script src="../shared/core.js"></script>

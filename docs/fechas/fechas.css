@@ -11,7 +11,7 @@
 .next-hero .moon { top: 10px; right: 26px; }
 .filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-bottom: 6px; scrollbar-width: none; }
 
-.dates { display: grid; gap: 10px; }
+.dates { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .date-card {
   display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; font: inherit; color: inherit;
   background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 14px 10px 10px; box-shadow: var(--shadow);

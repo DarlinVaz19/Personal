@@ -68,7 +68,7 @@ function todayRows(s) {
   for (const ev of read('fechas.v1')?.events || []) {
     const d = daysBetween(today, nextOccurrence(ev, today));
     if (d < 0 || d > 14) continue;
-    const ic = ev.kind === 'cumple' ? 'pastel' : ev.kind === 'aniversario' ? 'aniversario' : ev.kind === 'gato' ? 'huella' : 'evento';
+    const ic = ev.kind === 'cumple' ? 'pastel' : ev.kind === 'aniversario' ? 'aniversario' : ev.kind === 'gato' ? 'huella' : ev.kind === 'tablero' ? 'mod_ideas' : 'evento';
     rows.push({ d, href: 'fechas/', icon: ic, text: ev.name, sub: d === 0 ? '¡Es hoy! ✦' : when(d), hot: d <= 2 });
   }
 
@@ -171,12 +171,12 @@ function renderTiles(s) {
   }
   const tiles = [
     { href: 'finanzas/', icon: 'mod_finanzas', name: 'Finanzas', sub: `${fmt(s.monthSpent)} este mes` },
-    { href: 'ideas/', icon: 'mod_ideas', name: 'Ideas', sub: s.ideasOpen ? `${s.ideasOpen} idea${s.ideasOpen === 1 ? '' : 's'} en el tablero` : 'Tu tablero de notas' },
+    { href: 'ideas/', icon: 'mod_ideas', name: 'Vision board', sub: s.ideasOpen ? `${s.ideasOpen} nota${s.ideasOpen === 1 ? '' : 's'} en tu tablero` : 'Tus sueños y metas' },
     { href: 'gatos/', icon: 'mod_gatos', name: 'Gatos', sub: gatosSub },
     { href: 'habitos/', icon: 'mod_habitos', name: 'Hábitos', sub: s.habitsTotal ? `Hoy: ${s.habitsDone} de ${s.habitsTotal}` : 'Crea tus hábitos' },
     { href: 'diario/', icon: 'mod_diario', name: 'Mi día', sub: s.mood ? `Hoy: ${MOODS[s.mood]}` : '¿Cómo está tu cielo hoy?' },
     { href: 'compras/', icon: 'mod_compras', name: 'Compras', sub: s.shopping ? `${s.shopping} por comprar` : 'Tu lista de compras' },
-    { href: 'fechas/', icon: 'mod_fechas', name: 'Fechas', sub: s.nextDate ? `${s.nextDate.name} · ${s.nextDate.when}` : 'Cumpleaños y eventos' },
+    { href: 'fechas/', icon: 'mod_fechas', name: 'Countdown', sub: s.nextDate ? `${s.nextDate.name} · ${s.nextDate.when}` : 'Cumpleaños y eventos' },
     { href: 'sueno/', icon: 'mod_sueno', name: 'Sueño', sub: s.sleep ? `Anoche: ${Math.floor(s.sleep.minutes / 60)} h ${Math.round(s.sleep.minutes % 60)} min` : '¿Cómo dormiste?' },
   ];
   $('#tiles').innerHTML = tiles.map((t, i) => `

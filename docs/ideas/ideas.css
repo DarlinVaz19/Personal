@@ -1,57 +1,103 @@
-/* ===== Ideas: tablero de notas adhesivas ===== */
-.search { margin-bottom: 10px; }
-.filters { margin-bottom: 16px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+/* ===== Vision board ===== */
+.board-tools { display: flex; gap: 8px; margin-bottom: 10px; }
+.board-tools input {
+  flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px;
+  min-height: 46px; outline: 0; font: inherit; color: inherit; box-shadow: var(--shadow);
+}
+.board-tools .btn.small { margin: 0; min-height: 46px; }
+.filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-bottom: 6px; scrollbar-width: none; }
 .filters::-webkit-scrollbar { display: none; }
+.board-hint { margin: 0 2px 8px; }
 
-.board { columns: 2; column-gap: 14px; }
-.board-empty { column-span: all; }
+.board {
+  position: relative; margin: 0 -6px; border-radius: 22px; overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px,
+    color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--accent) 30%, transparent);
+  touch-action: pan-y;
+}
+.board .empty { position: static; }
+
+/* Nota */
 .note {
   --hand: "Noteworthy", "Bradley Hand", "Segoe Print", "Chalkboard SE", ui-rounded, cursive;
-  break-inside: avoid; display: inline-block; width: 100%; margin: 10px 0 14px; position: relative;
-  background: var(--note); color: #3a3358; border-radius: 4px 4px 14px 4px; padding: 22px 14px 10px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .06), 0 10px 18px -6px rgba(60, 40, 90, .28);
-  transform: rotate(var(--r)); animation: rise .45s ease-out both; animation-delay: calc(var(--i) * 40ms);
+  position: absolute; background: var(--note); color: #3a3358; border-radius: 4px 4px 14px 4px; padding: 20px 12px 10px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .06), 0 10px 18px -6px rgba(60, 40, 90, .3);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab;
+  transition: box-shadow .2s, opacity .25s, filter .25s; transform-origin: 50% 50%;
 }
+.note.dragging { cursor: grabbing; box-shadow: 0 22px 36px -10px rgba(60, 40, 90, .45); transition: none; }
+.note.dragging, .note.sel { filter: brightness(1.02); }
+.note.sel { outline: 2px dashed var(--accent); outline-offset: 5px; }
+.note.dim { opacity: .18; filter: grayscale(.6); }
 .note::after {
-  content: ""; position: absolute; right: 0; bottom: 0; width: 22px; height: 22px;
+  content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px;
   background: linear-gradient(135deg, rgba(0, 0, 0, .10) 50%, transparent 50%); border-radius: 0 0 14px 0;
 }
 .tape {
-  position: absolute; top: -9px; left: 50%; width: 64px; height: 20px; transform: translateX(-50%) rotate(-3deg);
+  position: absolute; top: -9px; left: 50%; width: 62px; height: 20px; transform: translateX(-50%) rotate(-3deg);
   background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .55) 0 6px, rgba(255, 255, 255, .25) 6px 12px), var(--accent-soft);
-  opacity: .9; border-radius: 2px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
+  opacity: .92; border-radius: 2px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
 }
 .note-text {
-  font-family: var(--hand); font-size: 18px; line-height: 1.35; white-space: pre-wrap; word-break: break-word;
-  display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer;
+  font-family: var(--hand); font-size: 17px; line-height: 1.35; white-space: pre-wrap; word-break: break-word;
+  display: -webkit-box; -webkit-line-clamp: 9; -webkit-box-orient: vertical; overflow: hidden;
 }
-.note-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 6px; }
-.note-tag { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: rgba(255, 255, 255, .6); border-radius: 999px; padding: 3px 8px; }
-.note-actions { display: flex; gap: 4px; }
-.note-btn {
-  width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .55);
-  color: rgba(58, 51, 88, .45); font-size: 16px; display: grid; place-items: center;
+
+/* Foto estilo polaroid */
+.note.polaroid { background: #fffdf8; padding: 10px 10px 12px; border-radius: 3px; }
+.note.polaroid::after { display: none; }
+.note-photo { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; pointer-events: none; background: #eee; }
+.note.polaroid .note-text { margin-top: 8px; font-size: 16px; text-align: center; -webkit-line-clamp: 3; }
+
+.note-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+.note-foot:empty { display: none; }
+.note-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: rgba(0, 0, 0, .06); border-radius: 999px; padding: 3px 8px; }
+.note-cd {
+  display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 999px; padding: 3px 9px 3px 5px;
 }
-.note-btn.on { color: #fff; background: #f5a524; }
-.note-btn[data-done].on { background: #6c5fb8; }
+.note-cd .ic.mini { width: 15px; height: 15px; --ic-line: rgba(0, 0, 0, .3); }
+.note-fav { color: #f5a524; font-size: 16px; margin-left: auto; }
 .note.done .note-text { text-decoration: line-through; text-decoration-color: rgba(58, 51, 88, .5); opacity: .6; }
-.note.done { filter: saturate(.7); }
 .stamp {
-  position: absolute; right: 8px; top: 30%; transform: rotate(-14deg); pointer-events: none;
-  border: 3px solid #6c5fb8; color: #6c5fb8; border-radius: 8px; padding: 2px 8px; font-weight: 800; font-size: 15px;
-  letter-spacing: .04em; background: rgba(255, 255, 255, .5); text-transform: uppercase;
+  position: absolute; right: 6px; top: 34%; transform: rotate(-14deg); pointer-events: none;
+  border: 3px solid #6c5fb8; color: #6c5fb8; border-radius: 8px; padding: 2px 8px; font-weight: 800; font-size: 14px;
+  letter-spacing: .04em; background: rgba(255, 255, 255, .6); text-transform: uppercase;
 }
 .note.stamping .stamp { animation: stampIn .45s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes stampIn { from { transform: rotate(-14deg) scale(2.4); opacity: 0; } to { transform: rotate(-14deg) scale(1); opacity: 1; } }
-.note.drop { animation: noteDrop .65s cubic-bezier(.3, 1.4, .5, 1) both; }
-@keyframes noteDrop {
-  0% { transform: translateY(-60px) rotate(calc(var(--r) - 18deg)) scale(.8); opacity: 0; }
-  100% { transform: rotate(var(--r)); opacity: 1; }
+.note.drop { animation: noteDrop .6s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes noteDrop { from { opacity: 0; margin-top: -50px; } to { opacity: 1; margin-top: 0; } }
+
+/* Controles de la nota seleccionada */
+.rot-handle {
+  position: absolute; right: -10px; top: -14px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-contrast); font-size: 19px; font-weight: 700; box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
+  cursor: grab; touch-action: none; z-index: 2;
 }
+.note-tools {
+  position: absolute; left: 50%; top: calc(100% + 10px); transform: translateX(-50%); display: flex; gap: 6px; z-index: 2;
+  background: var(--surface-solid); border: 1px solid var(--border); border-radius: 999px; padding: 4px; box-shadow: 0 6px 16px rgba(0, 0, 0, .18);
+}
+.note-tools button {
+  border: 0; background: var(--surface-2); border-radius: 999px; min-width: 38px; height: 36px; padding: 0 12px;
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--text);
+}
+.note-tools button.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-contrast); }
 
 /* Editor */
-.note-input { font-family: "Noteworthy", "Bradley Hand", ui-rounded, cursive; font-size: 19px; color: #3a3358 !important; min-height: 160px !important; border-radius: 6px 6px 18px 6px !important; }
-.swatches { display: flex; gap: 10px; }
-.swatch { width: 42px; height: 42px; border-radius: 12px; border: 2px solid rgba(0, 0, 0, .06); }
+.photo-slot { margin-bottom: 12px; }
+.photo-slot img { display: block; width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; border: 6px solid #fffdf8; box-shadow: var(--shadow); }
+.photo-btns { display: flex; gap: 8px; margin-top: 8px; }
+.add-photo {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 16px;
+  border: 2px dashed color-mix(in srgb, var(--accent) 40%, transparent); background: var(--surface); font: inherit; font-weight: 700; color: var(--accent);
+}
+.add-photo .ic { width: 32px; height: 32px; }
+.note-input { font-family: "Noteworthy", "Bradley Hand", ui-rounded, cursive; font-size: 19px; color: #3a3358 !important; min-height: 120px !important; border-radius: 6px 6px 18px 6px !important; }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch { width: 40px; height: 40px; border-radius: 12px; border: 2px solid rgba(0, 0, 0, .08); }
 .swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .swatch.just { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }

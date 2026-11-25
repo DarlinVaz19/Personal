@@ -1,6 +1,6 @@
 'use strict';
 
-/* Fechas importantes: cumpleaños, aniversarios y eventos con cuenta regresiva.
+/* Countdown: cumpleaños, aniversarios, eventos y notas del vision board con cuenta regresiva.
    Los cumpleaños se conectan con Regalos de la lista de compras. */
 
 const store = createStore('fechas.v1', () => ({ events: [] }));
@@ -10,6 +10,7 @@ const KINDS = {
   aniversario: { name: 'Aniversario', icon: 'aniversario' },
   evento: { name: 'Evento', icon: 'evento' },
   gato: { name: 'De mis gatos', icon: 'huella' },
+  tablero: { name: 'Del vision board', icon: 'mod_ideas' },
   otro: { name: 'Otro', icon: 'mod_fechas' },
 };
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -54,7 +55,7 @@ function renderHero() {
   const list = sorted();
   const hero = $('#hero');
   if (!list.length) {
-    hero.innerHTML = `<span class="moon">${icon('mod_fechas')}</span><div class="k">Fechas importantes</div><div class="v">Sin fechas aún</div>
+    hero.innerHTML = `<span class="moon">${icon('mod_fechas')}</span><div class="k">Countdown</div><div class="v">Sin fechas aún</div>
       <div class="meta"><span>Agrega cumpleaños y eventos con +</span></div>`;
     return;
   }
@@ -141,7 +142,7 @@ function eventSheet(id) {
     ${ev && ['cumple', 'aniversario'].includes(ev.kind) ? `<button type="button" class="btn" id="giftE">${icon('regalo', 'mini')} Agregar regalo a mi lista de compras</button>` : ''}
     ${ev ? '<button type="button" class="btn danger" id="delE">Eliminar</button>' : ''}`);
   const paint = () => {
-    $('#eKinds', sheet).innerHTML = Object.entries(KINDS).map(([k, v]) =>
+    $('#eKinds', sheet).innerHTML = Object.entries(KINDS).filter(([k]) => k !== 'tablero' || st.kind === 'tablero').map(([k, v]) =>
       `<button type="button" class="chip" data-kind="${k}" aria-pressed="${st.kind === k}">${icon(v.icon)}${v.name}</button>`).join('');
     $('#personWrap', sheet).hidden = !['cumple', 'aniversario'].includes(st.kind);
     const yearly = $('#eYearly', sheet).checked;
@@ -168,7 +169,9 @@ function eventSheet(id) {
         date: `${year}-${pad(m)}-${pad(Math.min(d, maxD))}`, gift: $('#eGift', sheet).value.trim(), note: $('#eNote', sheet).value.trim(),
       };
       if (ev) Object.assign(ev, data); else store.data.events.push({ id: uid(), createdAt: Date.now(), ...data });
-      store.save(); closeSheet(); render();
+      store.save();
+      if (ev?.noteId) syncNote(ev.noteId, ev.date);
+      closeSheet(); render();
       const n = nextOf(data);
       celebrate(KINDS[st.kind].icon, ev ? 'Fecha actualizada' : '¡Fecha guardada!', countdown(n.days));
       return;
@@ -176,9 +179,21 @@ function eventSheet(id) {
     if (e.target.closest('#giftE')) { addGift(ev); return; }
     if (e.target.closest('#delE') && confirm(`¿Eliminar "${ev.name}"?`)) {
       store.data.events = store.data.events.filter((x) => x.id !== ev.id);
-      store.save(); closeSheet(); render();
+      store.save();
+      if (ev.noteId) syncNote(ev.noteId, null);
+      closeSheet(); render();
     }
   });
+}
+
+// Si la fecha viene de una nota del vision board, la nota se actualiza también.
+function syncNote(noteId, date) {
+  let ideas;
+  try { ideas = JSON.parse(localStorage.getItem('ideas.v1')); } catch (e) { ideas = null; }
+  const n = ideas?.notes?.find((x) => x.id === noteId);
+  if (!n) return;
+  n.date = date;
+  localStorage.setItem('ideas.v1', JSON.stringify(ideas));
 }
 
 function bind() {

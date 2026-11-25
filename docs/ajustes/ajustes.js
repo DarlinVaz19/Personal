@@ -31,11 +31,11 @@ function renderBackup() {
   const p = backupPayload();
   const counts = [];
   const f = p.data['finanzas.v1']; if (f?.movements?.length) counts.push(`${f.movements.length} movimientos`);
-  const i = p.data['ideas.v1']; if (i?.notes?.length) counts.push(`${i.notes.length} ideas`);
+  const i = p.data['ideas.v1']; if (i?.notes?.length) counts.push(`${i.notes.length} notas del vision board`);
   const g = p.data['gatos.v1']; if (g?.cats?.length) counts.push(`${g.cats.length} gatos`);
   const h = p.data['habitos.v1']; if (h?.habits?.length) counts.push(`${h.habits.length} hábitos`);
   const d = p.data['diario.v1']; if (d?.entries && Object.keys(d.entries).length) counts.push(`${Object.keys(d.entries).length} días en Mi día`);
-  const fe = p.data['fechas.v1']; if (fe?.events?.length) counts.push(`${fe.events.length} fechas importantes`);
+  const fe = p.data['fechas.v1']; if (fe?.events?.length) counts.push(`${fe.events.length} fechas en Countdown`);
   const sh = p.data['compras.v1']; if (sh?.items?.length) counts.push(`${sh.items.length} cosas en la lista de compras`);
   const sl = p.data['sueno.v1']; if (sl?.nights && Object.keys(sl.nights).length) counts.push(`${Object.keys(sl.nights).length} noches de sueño`);
   const last = settings.data.lastBackup;
