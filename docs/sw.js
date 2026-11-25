@@ -1,6 +1,6 @@
 // Service worker de "Mi cielo": permite abrir todas las secciones sin internet.
 // Sube CACHE cuando cambies archivos para que el teléfono descargue la versión nueva.
-const CACHE = 'mi-cielo-v15';
+const CACHE = 'mi-cielo-v16';
 const ASSETS = [
   './', 'index.html', 'hub.js', 'hub.css', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',

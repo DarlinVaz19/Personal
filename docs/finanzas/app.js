@@ -446,43 +446,251 @@ function renderMovements() {
 
 /* ---------------- Deudas ---------------- */
 
+const r2 = (v) => Math.round(v * 100) / 100;
+
+// Cómo se ve cada movimiento en la lista de una persona (desde tu lado).
+const DEBT_LABEL = { prestado: 'Pagué yo', debo: 'Pagó por mí', meprestaron: 'Me prestó', preste: 'Le presté', cobro: 'Me pagó', pago: 'Le pagué' };
+// Y en el pase de abordar, que se le manda a esa persona.
+const PASS_LABEL = { prestado: 'Pagué por ti', debo: 'Pagaste por mí', meprestaron: 'Me prestaste', preste: 'Te presté', cobro: 'Me pagaste', pago: 'Te pagué' };
+
+// Solo lo pendiente: los movimientos desde la última vez que quedaron a mano.
+function openItems(p) {
+  const ms = db.movements
+    .filter((m) => personKey(m.person) === p.key && debtDelta(m) !== 0)
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.createdAt || 0) - (b.createdAt || 0));
+  let bal = 0, items = [];
+  for (const m of ms) {
+    bal = r2(bal + debtDelta(m));
+    items.push({ m, d: r2(debtDelta(m)) });
+    if (Math.abs(bal) < 0.005) items = [];
+  }
+  return items;
+}
+
+function conceptOf(m) {
+  if (!m.note && (m.type === 'cobro' || m.type === 'pago')) return 'Abono';
+  return m.note || categoryById(m.category)?.name || TYPES[m.type]?.label || '';
+}
+
+function shortDay(iso) {
+  return dateOf(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }).replace('.', '');
+}
+
+function debtCard(p, i) {
+  const owesMe = p.balance > 0;
+  const items = openItems(p);
+  return `
+    <article class="debt-card ${owesMe ? 'owes-me' : 'i-owe'}" style="--i:${i}">
+      <div class="dc-head">
+        <span class="avatar">${esc(p.name.charAt(0).toUpperCase())}</span>
+        <div class="dc-name"><b>${esc(p.name)}</b><small>${owesMe ? 'te debe' : 'le debes'}</small></div>
+        <div class="dc-amt">${fmt(Math.abs(p.balance))}</div>
+      </div>
+      <div class="dc-items">${items.map(({ m, d }) => `
+        <button type="button" class="dc-item" data-edit="${esc(m.id)}">
+          <span class="dc-date">${esc(shortDay(m.date))}</span>
+          <span class="dc-what"><b>${esc(conceptOf(m))}</b><small>${esc(DEBT_LABEL[m.type] || '')}</small></span>
+          <span class="dc-d ${(d > 0) === owesMe ? 'plus' : 'minus'}">${(d > 0) === owesMe ? '+' : '−'}${fmt(Math.abs(d))}</span>
+        </button>`).join('')}</div>
+      <div class="dc-actions">
+        <button type="button" class="btn small" data-settle="${esc(p.name)}" data-balance="${p.balance}">${owesMe ? 'Me pagó' : 'Le pagué'}</button>
+        <button type="button" class="btn small pass-btn" data-pass="${esc(p.key)}">${icon('avion', 'mini')} Pase de abordar</button>
+      </div>
+    </article>`;
+}
+
 function renderDebts() {
   const people = peopleBalances();
-  const owedToMe = people.filter((p) => p.balance > 0).reduce((s, p) => s + p.balance, 0);
-  const iOwe = people.filter((p) => p.balance < 0).reduce((s, p) => s - p.balance, 0);
+  const inList = people.filter((p) => p.balance > 0.004).sort((a, b) => b.balance - a.balance);
+  const outList = people.filter((p) => p.balance < -0.004).sort((a, b) => a.balance - b.balance);
+  const settled = people.filter((p) => Math.abs(p.balance) <= 0.004).sort((a, b) => b.last.localeCompare(a.last));
+  const owedToMe = inList.reduce((s, p) => s + p.balance, 0);
+  const iOwe = outList.reduce((s, p) => s - p.balance, 0);
   $('#debtTotals').innerHTML = `
-    <div class="stat"><div class="k">Te deben</div><div class="v in">${fmt(owedToMe)}</div></div>
-    <div class="stat"><div class="k">Debes</div><div class="v out">${fmt(iOwe)}</div></div>`;
+    <div class="stat"><div class="k">Te deben</div><div class="v in">${fmt(owedToMe)}</div><small class="muted">${inList.length} persona${inList.length === 1 ? '' : 's'}</small></div>
+    <div class="stat"><div class="k">Debes</div><div class="v out">${fmt(iOwe)}</div><small class="muted">${outList.length} persona${outList.length === 1 ? '' : 's'}</small></div>`;
 
   if (!people.length) {
     $('#debtList').innerHTML = `<div class="empty">${icon('tab_deudas')}<b>Sin deudas</b>Registra un préstamo con los botones de arriba, o usa “Pagué por alguien” al registrar un gasto.</div>`;
     return;
   }
-
-  const open = people.filter((p) => p.balance !== 0).sort((a, b) => Math.abs(b.balance) - Math.abs(a.balance));
-  const settled = people.filter((p) => p.balance === 0).sort((a, b) => b.last.localeCompare(a.last));
-
-  const personBlock = (p) => {
-    const hist = sortedMovements(db.movements.filter((m) => personKey(m.person) === p.key)).slice(0, 5);
-    const status = p.balance > 0 ? `<span class="in">te debe ${fmt(p.balance)}</span>`
-      : p.balance < 0 ? `<span class="out">le debes ${fmt(-p.balance)}</span>` : '<span class="muted">a mano</span>';
-    return `
-      <details class="list" style="margin-bottom:10px">
-        <summary class="item" style="list-style:none;cursor:pointer">
-          <span class="main"><div class="t">${esc(p.name)}</div><div class="s">${p.count} movimiento${p.count === 1 ? '' : 's'}</div></span>
-          <span class="amt">${status}</span>
-        </summary>
-        ${p.balance !== 0 ? `<div class="person-actions">
-          <button type="button" class="btn small" data-settle="${esc(p.name)}" data-balance="${p.balance}">
-            ${p.balance > 0 ? 'Me pagó' : 'Le pagué'}
-          </button></div>` : ''}
-        ${hist.map(movementRow).join('')}
-      </details>`;
-  };
-
+  let i = 0;
   $('#debtList').innerHTML =
-    (open.length ? open.map(personBlock).join('') : `<div class="empty">${icon('avion')}<b>Cielo despejado</b>Estás a mano con todos.</div>`) +
-    (settled.length ? `<h2>A mano</h2>${settled.map(personBlock).join('')}` : '');
+    (inList.length ? `<h2>Te deben</h2>${inList.map((p) => debtCard(p, i++)).join('')}` : '') +
+    (outList.length ? `<h2>Les debes</h2>${outList.map((p) => debtCard(p, i++)).join('')}` : '') +
+    (!inList.length && !outList.length ? `<div class="empty">${icon('avion')}<b>Cielo despejado</b>Estás a mano con todos.</div>` : '') +
+    (settled.length ? `<details class="settled"><summary>A mano (${settled.length})</summary>
+      <div class="list">${settled.map((p) => `<div class="item"><span class="main"><div class="t">${esc(p.name)}</div><div class="s">${p.count} movimiento${p.count === 1 ? '' : 's'}</div></span><span class="amt muted">a mano</span></div>`).join('')}</div>
+    </details>` : '');
+}
+
+/* ---------------- Pase de abordar para compartir ---------------- */
+
+function airportCode(name) {
+  const clean = (name || '').normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase();
+  return (clean + 'XXX').slice(0, 3);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// Dibuja el pase en un canvas y lo devuelve.
+function drawPass(p, myName) {
+  const items = openItems(p);
+  const owesMe = p.balance > 0;
+  const shown = items.slice(-8);
+  const W = 1080, rowH = 74;
+  const H = 1180 + shown.length * rowH + (items.length > shown.length ? 50 : 0);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const F = (w, s) => `${w} ${s}px -apple-system, "SF Pro Rounded", system-ui, "Segoe UI", Roboto, sans-serif`;
+  const MONO = (w, s) => `${w} ${s}px ui-monospace, "SF Mono", Menlo, monospace`;
+  const ink = '#2f2850', muted = '#7b7398', accent = '#6c5fb8';
+
+  // Fondo de cielo
+  let g = x.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#f8dccf'); g.addColorStop(0.5, '#e6dcf5'); g.addColorStop(1, '#cfdff5');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.fillStyle = 'rgba(255,255,255,.85)';
+  for (let i = 0; i < 40; i++) { x.beginPath(); x.arc((i * 337) % W, (i * 211) % H, (i % 3) + 1.5, 0, Math.PI * 2); x.fill(); }
+
+  // Tarjeta
+  const cx = 60, cy = 70, cw = W - 120, ch = H - 140;
+  x.save(); x.shadowColor = 'rgba(60,40,110,.25)'; x.shadowBlur = 40; x.shadowOffsetY = 14;
+  roundRect(x, cx, cy, cw, ch, 40); x.fillStyle = '#fffdfb'; x.fill(); x.restore();
+
+  // Franja superior
+  x.save(); roundRect(x, cx, cy, cw, ch, 40); x.clip();
+  g = x.createLinearGradient(cx, 0, cx + cw, 0); g.addColorStop(0, '#6c5fb8'); g.addColorStop(1, '#b46e9f');
+  x.fillStyle = g; x.fillRect(cx, cy, cw, 130); x.restore();
+  x.fillStyle = '#fff'; x.font = MONO('bold', 34); x.textBaseline = 'middle';
+  x.fillText('PASE DE ABORDAR', cx + 50, cy + 66);
+  x.textAlign = 'right'; x.fillText('MI CIELO ✈', cx + cw - 50, cy + 66); x.textAlign = 'left';
+
+  // Ruta
+  let y = cy + 200;
+  const from = owesMe ? p.name : (myName || 'Yo');
+  const to = owesMe ? (myName || 'Yo') : p.name;
+  x.fillStyle = muted; x.font = MONO('bold', 26);
+  x.fillText('DE', cx + 50, y); x.textAlign = 'right'; x.fillText('PARA', cx + cw - 50, y); x.textAlign = 'left';
+  y += 62;
+  x.fillStyle = ink; x.font = F('800', 96);
+  x.fillText(airportCode(from), cx + 50, y); x.textAlign = 'right'; x.fillText(airportCode(to), cx + cw - 50, y); x.textAlign = 'left';
+  x.strokeStyle = 'rgba(108,95,184,.45)'; x.setLineDash([14, 12]); x.lineWidth = 4;
+  x.beginPath(); x.moveTo(cx + 290, y); x.lineTo(cx + cw - 290, y); x.stroke(); x.setLineDash([]);
+  x.font = F('400', 72); x.textAlign = 'center'; x.fillStyle = accent; x.fillText('✈', W / 2, y - 4); x.textAlign = 'left';
+  y += 58;
+  x.fillStyle = muted; x.font = F('600', 30);
+  x.fillText(from, cx + 50, y); x.textAlign = 'right'; x.fillText(to, cx + cw - 50, y); x.textAlign = 'left';
+
+  // Campos
+  y += 80;
+  const today = new Date();
+  const fields = [['PASAJERO', p.name], ['FECHA', today.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).replace('.', '').toUpperCase()], ['VUELO', `MC${String(Math.abs(Math.round(p.balance))).padStart(4, '0').slice(-4)}`]];
+  const fw = (cw - 100) / 3;
+  fields.forEach(([k, v], i) => {
+    x.fillStyle = muted; x.font = MONO('bold', 24); x.fillText(k, cx + 50 + i * fw, y);
+    x.fillStyle = ink; x.font = F('700', 34); x.fillText(v.length > 14 ? v.slice(0, 13) + '…' : v, cx + 50 + i * fw, y + 46);
+  });
+
+  // Monto
+  y += 120;
+  roundRect(x, cx + 40, y, cw - 80, 190, 28);
+  g = x.createLinearGradient(cx, y, cx + cw, y + 190); g.addColorStop(0, '#efeafc'); g.addColorStop(1, '#fbe7ef');
+  x.fillStyle = g; x.fill();
+  x.fillStyle = accent; x.font = MONO('bold', 30); x.textAlign = 'center';
+  x.fillText(owesMe ? 'ME DEBES' : 'TE DEBO', W / 2, y + 52);
+  x.fillStyle = ink; x.font = F('800', 92); x.fillText(fmt(Math.abs(p.balance)), W / 2, y + 128);
+  x.textAlign = 'left';
+
+  // Detalle
+  y += 250;
+  x.fillStyle = muted; x.font = MONO('bold', 26); x.fillText('DETALLE', cx + 50, y);
+  y += 30;
+  if (items.length > shown.length) {
+    x.fillStyle = muted; x.font = F('500', 26);
+    x.fillText(`… y ${items.length - shown.length} movimiento${items.length - shown.length === 1 ? '' : 's'} antes`, cx + 50, y + 24);
+    y += 50;
+  }
+  for (const { m, d } of shown) {
+    x.strokeStyle = 'rgba(108,95,184,.15)'; x.lineWidth = 2; x.beginPath(); x.moveTo(cx + 50, y); x.lineTo(cx + cw - 50, y); x.stroke();
+    x.fillStyle = muted; x.font = F('600', 26); x.fillText(shortDay(m.date), cx + 50, y + 45);
+    let what = conceptOf(m);
+    x.fillStyle = ink; x.font = F('600', 30);
+    const maxW = cw - 520;
+    while (x.measureText(what).width > maxW && what.length > 4) what = what.slice(0, -2);
+    if (what !== conceptOf(m)) what += '…';
+    x.fillText(what, cx + 180, y + 34);
+    x.fillStyle = muted; x.font = F('500', 22); x.fillText(PASS_LABEL[m.type] || '', cx + 180, y + 62);
+    const iOweLine = (d > 0) !== owesMe;
+    x.fillStyle = iOweLine ? '#2f7d62' : ink; x.font = F('700', 30); x.textAlign = 'right';
+    x.fillText(`${iOweLine ? '−' : '+'}${fmt(Math.abs(d))}`, cx + cw - 50, y + 45); x.textAlign = 'left';
+    y += rowH;
+  }
+
+  // Perforación y talón
+  y += 40;
+  x.strokeStyle = 'rgba(108,95,184,.35)'; x.setLineDash([12, 10]); x.lineWidth = 3;
+  x.beginPath(); x.moveTo(cx + 40, y); x.lineTo(cx + cw - 40, y); x.stroke(); x.setLineDash([]);
+  g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#f8dccf'); g.addColorStop(0.5, '#e6dcf5'); g.addColorStop(1, '#cfdff5');
+  x.fillStyle = g;
+  x.beginPath(); x.arc(cx, y, 26, 0, Math.PI * 2); x.fill();
+  x.beginPath(); x.arc(cx + cw, y, 26, 0, Math.PI * 2); x.fill();
+  y += 50;
+  x.fillStyle = ink;
+  let bx = cx + 50;
+  const pattern = [3, 6, 2, 8, 3, 3, 5, 2, 7, 3, 2, 6, 4, 2, 3, 8, 2, 5];
+  for (let i = 0; bx < cx + cw - 470; i++) { const w = pattern[i % pattern.length]; if (i % 2 === 0) x.fillRect(bx, y, w, 80); bx += w + 3; }
+  x.fillStyle = accent; x.font = F('700', 28); x.textAlign = 'right';
+  x.fillText(owesMe ? 'Sin prisa, ¡buen vuelo!' : '¡Gracias por el aventón!', cx + cw - 50, y + 32);
+  x.fillStyle = muted; x.font = F('500', 24);
+  x.fillText('Hecho con Mi cielo ✦', cx + cw - 50, y + 70);
+  x.textAlign = 'left';
+  return c;
+}
+
+function passSheet(key) {
+  const p = peopleBalances().find((x) => x.key === key);
+  if (!p) return;
+  const st = { myName: settings.data.myName || '' };
+  const sheet = openSheet(`
+    <h3>Pase de abordar para ${esc(p.name)}</h3>
+    <div class="field"><label class="label" for="myName">Tu nombre (aparece en el pase)</label><input id="myName" value="${esc(st.myName)}" placeholder="Opcional" autocomplete="off"></div>
+    <img class="pass-preview" id="passImg" alt="Vista previa del pase">
+    <button type="button" class="btn primary" id="sharePass">Compartir</button>
+    <button type="button" class="btn" id="savePass">Descargar imagen</button>`);
+  let canvas;
+  const paint = () => { canvas = drawPass(p, st.myName.trim()); $('#passImg', sheet).src = canvas.toDataURL('image/png'); };
+  paint();
+  let t;
+  $('#myName', sheet).addEventListener('input', (e) => {
+    st.myName = e.target.value;
+    clearTimeout(t);
+    t = setTimeout(() => { settings.data.myName = st.myName.trim(); settings.save(); paint(); }, 300);
+  });
+  const filename = `pase-${airportCode(p.name).toLowerCase()}-${todayISO()}.png`;
+  const text = p.balance > 0 ? `${p.name}, aquí va el detalle de lo que me debes: ${fmt(p.balance)} ✈` : `${p.name}, aquí va el detalle de lo que te debo: ${fmt(-p.balance)} ✈`;
+  $('#sharePass', sheet).addEventListener('click', () => {
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], filename, { type: 'image/png' });
+      try {
+        if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+      } catch (e) { if (e.name === 'AbortError') return; }
+      download(filename, blob, 'image/png');
+      toast('Imagen descargada');
+    }, 'image/png');
+  });
+  $('#savePass', sheet).addEventListener('click', () => {
+    canvas.toBlob((blob) => { download(filename, blob, 'image/png'); toast('Imagen descargada'); }, 'image/png');
+  });
 }
 
 /* ---------------- Resumen ---------------- */
@@ -669,6 +877,8 @@ function bind() {
       setTimeout(() => $('#amount').focus(), 350);
       return;
     }
+    const pass = e.target.closest('[data-pass]');
+    if (pass) { passSheet(pass.dataset.pass); return; }
     const settle = e.target.closest('[data-settle]');
     if (settle) prefillPayment(settle.dataset.settle, Number(settle.dataset.balance));
   });

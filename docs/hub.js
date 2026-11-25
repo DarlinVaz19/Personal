@@ -107,9 +107,16 @@ function todayRows(s) {
     const bal = {};
     const delta = { prestado: (m) => m.owed ?? m.amount, pago: (m) => m.amount, preste: (m) => m.amount, debo: (m) => -m.amount, cobro: (m) => -m.amount, meprestaron: (m) => -m.amount };
     for (const m of fin.movements) if (m.person && delta[m.type]) { const k = m.person.trim().toLowerCase(); bal[k] = (bal[k] || 0) + delta[m.type](m); }
-    const owed = Object.values(bal).filter((v) => v > 0.004).reduce((a, v) => a + v, 0);
-    const owe = Object.values(bal).filter((v) => v < -0.004).reduce((a, v) => a - v, 0);
-    if (owed || owe) rows.push({ d: 54, href: 'finanzas/', icon: 'tab_deudas', text: 'Deudas', sub: [owed && `te deben ${fmt(owed)}`, owe && `debes ${fmt(owe)}`].filter(Boolean).join(' · ') });
+    // Una línea por persona (máximo 4), para saber cuánto con quién.
+    const names = {};
+    for (const m of fin.movements) if (m.person && !names[m.person.trim().toLowerCase()]) names[m.person.trim().toLowerCase()] = m.person.trim();
+    const open = Object.entries(bal).filter(([, v]) => Math.abs(v) > 0.004).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+    open.slice(0, 4).forEach(([k, v], i) => rows.push({
+      d: 54 + i / 10, href: 'finanzas/', icon: 'tab_deudas',
+      text: v > 0 ? `${names[k]} te debe ${fmt(v)}` : `Le debes ${fmt(-v)} a ${names[k]}`,
+      sub: v > 0 ? 'Toca para ver el detalle o mandarle su pase' : 'Toca para ver el detalle',
+    }));
+    if (open.length > 4) rows.push({ d: 54.9, href: 'finanzas/', icon: 'tab_deudas', text: `Y ${open.length - 4} persona${open.length - 4 === 1 ? '' : 's'} más`, sub: 'Ver todas tus deudas' });
   }
 
   // Resumen del mes: los últimos 3 días del mes y los primeros 5 del siguiente

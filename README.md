@@ -12,7 +12,7 @@ Se abre en `https://darlinvaz19.github.io/Personal/` y se instala desde Safari c
 | Sección | Qué hace |
 |---|---|
 | **Inicio** | Pase de abordar del día, **Hoy** (fechas cercanas, cuidados de gatos, hábitos, compras, deudas) y accesos a cada sección. |
-| **Finanzas** | Gastos con tarjeta (Débito/Crédito Banamex, Débito Nu, Efectivo), préstamos y deudas en ambos sentidos ("Me prestaron", "Presté dinero", "Pagué por alguien"…), ingresos. Movimientos como pase de abordar y resumen como bitácora de vuelo. |
+| **Finanzas** | Gastos con tarjeta (Débito/Crédito Banamex, Débito Nu, Efectivo), préstamos y deudas en ambos sentidos ("Me prestaron", "Presté dinero", "Pagué por alguien"…) agrupadas por persona con su detalle, y un **pase de abordar** en imagen para mandarle a cada quien lo que debe; ingresos. Movimientos como pase de abordar y resumen como bitácora de vuelo. |
 | **Vision board** | Post-its y fotos estilo polaroid que se arrastran y giran libremente; etiquetas, favoritas, "¡Hecho!"; si una nota tiene fecha aparece en Countdown. |
 | **Gatos** | Pasaporte felino por gato, salud y veterinario (con próxima fecha), peso con gráfica y compras (se pueden registrar también en Finanzas). |
 | **Hábitos** | Marca tus hábitos del día, rachas, semana a la vista y pista de despegue. |
